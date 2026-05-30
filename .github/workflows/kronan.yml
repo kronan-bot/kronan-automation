@@ -1,4 +1,4 @@
-name: Krónan Daily Report
+name: KrÃ³nan Daily Report
 
 on:
   # Run every 15 minutes from 07:00 to 10:00 UTC
@@ -14,6 +14,8 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write   # needed to commit data files back to repo
+    env:
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
 
     steps:
       - name: Checkout repo
@@ -43,8 +45,8 @@ jobs:
       - name: Commit updated data files
         if: steps.runner.outputs.processed == 'true'
         run: |
-          git config user.name  "Krónan Bot"
+          git config user.name  "KrÃ³nan Bot"
           git config user.email "kronan-bot@tokyo.is"
-          git add data/Krónan_Master_Skrá.xlsx data/Krónan_Dashboard.html
+          git add data/KrÃ³nan_Master_SkrÃ¡.xlsx data/KrÃ³nan_Dashboard.html
           git diff --staged --quiet || git commit -m "Auto: process report $(date -u '+%Y-%m-%d %H:%M UTC')"
           git push
