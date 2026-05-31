@@ -36,10 +36,10 @@ jobs:
             curl -sL --max-time 60 -o "data/Krónan_Dashboard.html" "https://kronan-dashboard.netlify.app/"
             echo "Downloaded: $(wc -c < data/Krónan_Dashboard.html) bytes"
           else
-            echo "Dashboard already present: $(wc -c < data/Krónan_Dashboard.html) bytes"
+            echo "Dashboard present: $(wc -c < data/Krónan_Dashboard.html) bytes"
           fi
 
-      - name: Run cloud runner (no Netlify)
+      - name: Run cloud runner
         id: runner
         env:
           DROPBOX_REFRESH_TOKEN: ${{ secrets.DROPBOX_REFRESH_TOKEN }}
@@ -55,39 +55,35 @@ jobs:
           exit $PY_EXIT
 
       - name: Rebuild dashboard from master
-        env:
-          KRONAN_BASE: data
         run: |
-          if [ -f "data/Krónan_Master_Skrá.xlsx" ]; then
-            MASTER_SIZE=$(wc -c < "data/Krónan_Master_Skrá.xlsx")
-            echo "Master size: $MASTER_SIZE bytes"
-            if [ "$MASTER_SIZE" -gt 100000 ]; then
-              echo "Running update_dashboard_data.py to refresh dashboard..."
-              python scripts/update_dashboard_data.py && echo "✓ Dashboard rebuilt" || echo "⚠ Dashboard rebuild failed"
+          MASTER="data/Krónan_Master_Skrá.xlsx"
+          if [ -f "$MASTER" ]; then
+            MSIZE=$(wc -c < "$MASTER")
+            echo "Master size: $MSIZE bytes"
+            if [ "$MSIZE" -gt 100000 ]; then
+              echo "Regenerating dashboard from master..."
+              KRONAN_BASE=data python scripts/update_dashboard_data.py && echo "Dashboard rebuilt OK" || echo "Dashboard rebuild failed"
             else
-              echo "Master too small ($MASTER_SIZE bytes) — skipping rebuild"
+              echo "Master too small, skipping rebuild"
             fi
           fi
 
-            - name: Deploy to Netlify
+      - name: Deploy to Netlify
         if: steps.runner.outputs.processed == 'true' || github.event_name == 'workflow_dispatch'
         env:
           NETLIFY_TOKEN: ${{ secrets.NETLIFY_TOKEN }}
           NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
         run: |
-          echo "Preparing deploy zip..."
           cp "data/Krónan_Dashboard.html" /tmp/index.html
           printf "/*\n  Content-Type: text/html; charset=utf-8\n  X-Content-Type-Options: nosniff\n" > /tmp/_headers
           cd /tmp && zip -j /tmp/deploy.zip index.html _headers && cd -
-          echo "Zip size: $(wc -c < /tmp/deploy.zip) bytes"
-          echo "Deploying to Netlify (site: $NETLIFY_SITE_ID)..."
+          echo "Zip: $(wc -c < /tmp/deploy.zip) bytes"
           RESULT=$(curl -sL \
             -H "Authorization: Bearer $NETLIFY_TOKEN" \
             -H "Content-Type: application/zip" \
             --data-binary @/tmp/deploy.zip \
             "https://api.netlify.com/api/v1/sites/$NETLIFY_SITE_ID/deploys")
-          STATE=$(echo "$RESULT" | python3 -c 'import sys,json; d=json.load(sys.stdin); print(d.get("state","?"), d.get("ssl_url",""), d.get("error_message",""))')
-          echo "Deploy result: $STATE"
+          echo "Deploy: $(echo $RESULT | python3 -c 'import sys,json; d=json.load(sys.stdin); print(d.get("state","?"), d.get("ssl_url",""))')"
           rm -f /tmp/deploy.zip /tmp/index.html /tmp/_headers
 
       - name: Commit results
