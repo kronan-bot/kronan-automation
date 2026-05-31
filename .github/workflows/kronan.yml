@@ -54,6 +54,21 @@ jobs:
           echo "---EXIT:$PY_EXIT---" >> data/runner_output.txt
           exit $PY_EXIT
 
+      - name: Check master dates
+        run: |
+          python3 -c "
+import openpyxl, json, os
+m='data/Kr\u00f3nan_Master_Skr\u00e1.xlsx'
+if os.path.exists(m):
+    wb=openpyxl.load_workbook(m, data_only=True)
+    ws=wb['Dagleg - Verslanir']
+    dates=sorted(set(r[0].strftime('%Y-%m-%d') for r in ws.iter_rows(min_row=2, values_only=True) if r[0] and hasattr(r[0],'strftime')))
+    print('DATES:', len(dates), 'first:', dates[0] if dates else 'none', 'last:', dates[-1] if dates else 'none')
+    with open('data/master_dates.txt','w') as f: f.write('|'.join(dates))
+else:
+    print('MASTER NOT FOUND')
+"
+
       - name: Rebuild dashboard from master
         run: |
           MASTER="data/Krónan_Master_Skrá.xlsx"
