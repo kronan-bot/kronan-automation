@@ -28,6 +28,17 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements.txt
 
+      - name: Bootstrap dashboard if missing
+        run: |
+          mkdir -p data
+          if [ ! -f "data/Krónan_Dashboard.html" ]; then
+            echo "Downloading base dashboard from Netlify..."
+            curl -sL --max-time 60 -o "data/Krónan_Dashboard.html" "https://kronan-dashboard.netlify.app/"
+            echo "Downloaded: $(wc -c < data/Krónan_Dashboard.html) bytes"
+          else
+            echo "Dashboard already present: $(wc -c < data/Krónan_Dashboard.html) bytes"
+          fi
+
       - name: Run cloud runner
         id: runner
         env:
