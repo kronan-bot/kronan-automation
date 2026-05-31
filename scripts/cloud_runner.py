@@ -51,25 +51,33 @@ def list_new_reports(dbx):
         print(f'✗ Could not list Dropbox folder: {e}')
         sys.exit(1)
 
+    print(f'  Folder has {len(result.entries)} entries')
     for entry in result.entries:
         name = entry.name
+        etype = type(entry).__name__
+        print(f'  Entry: [{etype}] {name!r}')
 
-        # Normal .xlsx file
-        if isinstance(entry, FileMetadata) and name.lower().endswith('.xlsx'):
+        if not name.lower().endswith('.xlsx'):
+            continue
+
+        # Use duck typing: files have client_modified, folders do not
+        is_file = hasattr(entry, 'client_modified')
+        if is_file:
+            # Normal .xlsx file
+            print(f'  -> Yielding file: {name}')
             yield entry.path_display, name, False
-
-        # Power Automate "folder-as-file" package: a directory named *.xlsx
-        # with the actual bytes inside a file called "undefined"
-        elif isinstance(entry, FolderMetadata) and name.lower().endswith('.xlsx'):
+        else:
+            # Power Automate folder-as-file package
             try:
                 inner = dbx.files_list_folder(entry.path_display)
                 undef = next(
                     (e for e in inner.entries
-                     if isinstance(e, FileMetadata) and e.name == 'undefined'),
+                     if hasattr(e, 'client_modified') and e.name == 'undefined'),
                     None
                 )
                 if undef:
-                    yield undef.path_display, name, True   # path is to "undefined" file
+                    print(f'  -> Yielding package: {name}')
+                    yield undef.path_display, name, True
             except ApiError:
                 pass
 
