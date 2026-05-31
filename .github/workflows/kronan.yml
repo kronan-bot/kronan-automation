@@ -1,4 +1,4 @@
-name: KrÃ³nan Daily Report
+name: Krónan Daily Report
 
 on:
   # Run every 15 minutes from 07:00 to 10:00 UTC
@@ -40,15 +40,13 @@ jobs:
           DROPBOX_APP_SECRET:    ${{ secrets.DROPBOX_APP_SECRET }}
           NETLIFY_TOKEN:         ${{ secrets.NETLIFY_TOKEN }}
           NETLIFY_SITE_ID:       ${{ secrets.NETLIFY_SITE_ID }}
-        run: |
-          python scripts/cloud_runner.py 2>&1 | tee data/debug.txt
-          exit ${PIPESTATUS[0]}
+        run: python scripts/cloud_runner.py
 
       - name: Commit updated data files
-        if: always()
+        if: steps.runner.outputs.processed == 'true'
         run: |
-          git config user.name  "KrÃ³nan Bot"
+          git config user.name "Krónan Bot"
           git config user.email "kronan-bot@tokyo.is"
-          git add data/KrÃ³nan_Master_SkrÃ¡.xlsx data/KrÃ³nan_Dashboard.html
+          git add data/Krónan_Master_Skrá.xlsx data/Krónan_Dashboard.html
           git diff --staged --quiet || git commit -m "Auto: process report $(date -u '+%Y-%m-%d %H:%M UTC')"
           git push
