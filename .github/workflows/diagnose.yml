@@ -1,0 +1,30 @@
+name: Dropbox Diagnostic
+on:
+  workflow_dispatch:
+jobs:
+  diag:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: pip install dropbox
+      - name: Run diagnostic
+        env:
+          DROPBOX_REFRESH_TOKEN: ${{ secrets.DROPBOX_REFRESH_TOKEN }}
+          DROPBOX_APP_KEY:       ${{ secrets.DROPBOX_APP_KEY }}
+          DROPBOX_APP_SECRET:    ${{ secrets.DROPBOX_APP_SECRET }}
+        run: python scripts/diagnose_dropbox.py
+      - name: Commit listing
+        if: always()
+        run: |
+          git config user.name "Krónan Bot"
+          git config user.email "kronan-bot@tokyo.is"
+          git add data/dropbox_listing.txt || true
+          git diff --staged --quiet || git commit -m "diag: Dropbox listing result"
+          git push
