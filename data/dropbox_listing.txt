@@ -3,9 +3,9 @@ Account: Ari Alexander Gudjonsson <ari@tokyo.is>
 Folder '/Krónan Reports': 2 entries, has_more=False
   [FolderMetadata] '/Krónan Reports/Processed'
   [FileMetadata] '/Krónan Reports/2026-05-30_Krónan söluskýrsla.xlsx'
-Folder '/Kronan Reports': ERROR ApiError('ff8f536921154189845b534f6a1c54d1', ListFolderError('path', LookupError('not_found', None)))
-Folder '/kronan reports': ERROR ApiError('e24b2dd2f6ee49d2ba59a4d56a1c54d1', ListFolderError('path', LookupError('not_found', None)))
-Root listing: 64 entries
+Folder '/Kronan Reports': ERROR ApiError('faf78065081d446caef118326a1c6085', ListFolderError('path', LookupError('not_found', None)))
+Folder '/kronan reports': ERROR ApiError('24260556cb80478ca0134cb26a1c6085', ListFolderError('path', LookupError('not_found', None)))
+Root listing: 65 entries
   [FolderMetadata] '/New poke ideas'
   [FolderMetadata] '/บริษัท Krás - ปลอกบรรจุภัณฑ์อาหาร'
   [FolderMetadata] '/Marketing team'
@@ -70,3 +70,4 @@ Root listing: 64 entries
   [FileMetadata] '/Process_Latest_Report.command'
   [FileMetadata] '/Deploy_Dashboard.command'
   [FileMetadata] '/kronan_launch.sh'
+  [FileMetadata] '/Krónan_Master_Skrá_seed.xlsx'
