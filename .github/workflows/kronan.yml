@@ -54,7 +54,22 @@ jobs:
           echo "---EXIT:$PY_EXIT---" >> data/runner_output.txt
           exit $PY_EXIT
 
-      - name: Deploy to Netlify
+      - name: Rebuild dashboard from master
+        env:
+          KRONAN_BASE: data
+        run: |
+          if [ -f "data/Krónan_Master_Skrá.xlsx" ]; then
+            MASTER_SIZE=$(wc -c < "data/Krónan_Master_Skrá.xlsx")
+            echo "Master size: $MASTER_SIZE bytes"
+            if [ "$MASTER_SIZE" -gt 100000 ]; then
+              echo "Running update_dashboard_data.py to refresh dashboard..."
+              python scripts/update_dashboard_data.py && echo "✓ Dashboard rebuilt" || echo "⚠ Dashboard rebuild failed"
+            else
+              echo "Master too small ($MASTER_SIZE bytes) — skipping rebuild"
+            fi
+          fi
+
+            - name: Deploy to Netlify
         if: steps.runner.outputs.processed == 'true' || github.event_name == 'workflow_dispatch'
         env:
           NETLIFY_TOKEN: ${{ secrets.NETLIFY_TOKEN }}
