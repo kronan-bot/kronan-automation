@@ -60,16 +60,20 @@ jobs:
           NETLIFY_TOKEN: ${{ secrets.NETLIFY_TOKEN }}
           NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
         run: |
-          echo "Zipping dashboard..."
-          cd data && zip -j deploy.zip "Krónan_Dashboard.html" && cd ..
+          echo "Preparing deploy zip..."
+          cp "data/Krónan_Dashboard.html" /tmp/index.html
+          printf "/*\n  Content-Type: text/html; charset=utf-8\n  X-Content-Type-Options: nosniff\n" > /tmp/_headers
+          cd /tmp && zip -j /tmp/deploy.zip index.html _headers && cd -
+          echo "Zip size: $(wc -c < /tmp/deploy.zip) bytes"
           echo "Deploying to Netlify (site: $NETLIFY_SITE_ID)..."
           RESULT=$(curl -sL \
             -H "Authorization: Bearer $NETLIFY_TOKEN" \
             -H "Content-Type: application/zip" \
-            --data-binary @data/deploy.zip \
+            --data-binary @/tmp/deploy.zip \
             "https://api.netlify.com/api/v1/sites/$NETLIFY_SITE_ID/deploys")
-          echo "Deploy result: $(echo $RESULT | python3 -c 'import sys,json; d=json.load(sys.stdin); print(d.get(\"state\",\"\"), d.get(\"ssl_url\",\"\"), d.get(\"error_message\",\"\"))')"
-          rm -f data/deploy.zip
+          STATE=$(echo "$RESULT" | python3 -c 'import sys,json; d=json.load(sys.stdin); print(d.get("state","?"), d.get("ssl_url",""), d.get("error_message",""))')
+          echo "Deploy result: $STATE"
+          rm -f /tmp/deploy.zip /tmp/index.html /tmp/_headers
 
       - name: Commit results
         if: always()
