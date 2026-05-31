@@ -51,10 +51,6 @@ def list_new_reports(dbx):
         print(f'✗ Could not list Dropbox folder: {e}')
         sys.exit(1)
 
-    print(f'  Dropbox folder "{DROPBOX_REPORTS_FOLDER}": {len(result.entries)} entries, has_more={result.has_more}')
-    for entry in result.entries:
-        print(f'    [{type(entry).__name__}] {entry.name!r}')
-
     for entry in result.entries:
         name = entry.name
 
