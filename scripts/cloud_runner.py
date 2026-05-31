@@ -28,6 +28,23 @@ SCRIPT_DIR  = REPO_ROOT / 'scripts'
 DATA_DIR    = REPO_ROOT / 'data'
 DATA_DIR.mkdir(exist_ok=True)
 
+# ── Seed master from Dropbox if repo copy is absent or tiny (first run) ────────
+SEED_PATH   = '/Krónan_Master_Skrá_seed.xlsx'
+MASTER_PATH = DATA_DIR / 'Krónan_Master_Skrá.xlsx'
+_master_size = MASTER_PATH.stat().st_size if MASTER_PATH.exists() else 0
+if _master_size < 100_000:
+    try:
+        _dbx_seed = dropbox.Dropbox(
+            oauth2_refresh_token=os.environ['DROPBOX_REFRESH_TOKEN'],
+            app_key=os.environ['DROPBOX_APP_KEY'],
+            app_secret=os.environ['DROPBOX_APP_SECRET'],
+        )
+        _dbx_seed.files_download_to_file(str(MASTER_PATH), SEED_PATH)
+        print(f'✓ Seeded master from Dropbox ({MASTER_PATH.stat().st_size:,} bytes)')
+    except Exception as _e:
+        print(f'⚠ Seed download skipped: {_e}')
+
+
 # Tell the existing scripts where to find data files
 os.environ['KRONAN_BASE'] = str(DATA_DIR)
 
