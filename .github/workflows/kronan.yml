@@ -39,20 +39,37 @@ jobs:
             echo "Dashboard already present: $(wc -c < data/Krónan_Dashboard.html) bytes"
           fi
 
-      - name: Run cloud runner
+      - name: Run cloud runner (no Netlify)
         id: runner
         env:
           DROPBOX_REFRESH_TOKEN: ${{ secrets.DROPBOX_REFRESH_TOKEN }}
           DROPBOX_APP_KEY:       ${{ secrets.DROPBOX_APP_KEY }}
           DROPBOX_APP_SECRET:    ${{ secrets.DROPBOX_APP_SECRET }}
-          NETLIFY_TOKEN:         ${{ secrets.NETLIFY_TOKEN }}
-          NETLIFY_SITE_ID:       ${{ secrets.NETLIFY_SITE_ID }}
+          NETLIFY_TOKEN:         ""
+          NETLIFY_SITE_ID:       ""
         run: |
           mkdir -p data
           python scripts/cloud_runner.py 2>&1 | tee data/runner_output.txt
           PY_EXIT=${PIPESTATUS[0]}
           echo "---EXIT:$PY_EXIT---" >> data/runner_output.txt
           exit $PY_EXIT
+
+      - name: Deploy to Netlify
+        if: steps.runner.outputs.processed == 'true'
+        env:
+          NETLIFY_TOKEN: ${{ secrets.NETLIFY_TOKEN }}
+          NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
+        run: |
+          echo "Zipping dashboard..."
+          cd data && zip -j deploy.zip "Krónan_Dashboard.html" && cd ..
+          echo "Deploying to Netlify (site: $NETLIFY_SITE_ID)..."
+          RESULT=$(curl -sL \
+            -H "Authorization: Bearer $NETLIFY_TOKEN" \
+            -H "Content-Type: application/zip" \
+            --data-binary @data/deploy.zip \
+            "https://api.netlify.com/api/v1/sites/$NETLIFY_SITE_ID/deploys")
+          echo "Deploy result: $(echo $RESULT | python3 -c 'import sys,json; d=json.load(sys.stdin); print(d.get(\"state\",\"\"), d.get(\"ssl_url\",\"\"), d.get(\"error_message\",\"\"))')"
+          rm -f data/deploy.zip
 
       - name: Commit results
         if: always()
