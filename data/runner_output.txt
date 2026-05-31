@@ -1,0 +1,29 @@
+
+📂 Reading report: /tmp/tmpzo5p7sae.xlsx
+  Date: 2026-05-30 00:00:00, Stores: 18, Products: 104
+
+📒 Loading master file...
+
+➕ Appending daily data...
+  ✓ Appended 18 store rows for 2026-05-30
+  ✓ Appended 104 product rows for 2026-05-30
+  ✓ Appended 647 store×product rows for 2026-05-30
+
+📅 Rebuilding monthly summaries...
+  ✓ Monthly stores summary rebuilt (1 months)
+  ✓ Monthly products summary rebuilt (1 months)
+
+✅ Master file saved: /home/runner/work/kronan-automation/kronan-automation/data/Krónan_Master_Skrá.xlsx
+SyntaxError: Non-UTF-8 code starting with '\xc2' in file /home/runner/work/kronan-automation/kronan-automation/scripts/update_dashboard_data.py on line 185, but no encoding declared; see https://peps.python.org/pep-0263/ for details
+  Folder has 2 entries
+  Entry: [FolderMetadata] 'Processed'
+  Entry: [FileMetadata] '2026-05-30_Krónan söluskýrsla.xlsx'
+  -> Yielding file: 2026-05-30_Krónan söluskýrsla.xlsx
+
+→ Found: 2026-05-30_Krónan söluskýrsla.xlsx
+  Downloaded (48,847 bytes)
+  $ /opt/hostedtoolcache/Python/3.11.15/x64/bin/python /home/runner/work/kronan-automation/kronan-automation/scripts/kronan_master.py /tmp/tmpzo5p7sae.xlsx
+  $ /opt/hostedtoolcache/Python/3.11.15/x64/bin/python /home/runner/work/kronan-automation/kronan-automation/scripts/update_dashboard_data.py
+  ✗ update_dashboard_data.py failed (exit 1)
+[output] processed=false
+---EXIT:0---
