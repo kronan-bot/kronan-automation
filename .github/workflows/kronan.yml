@@ -61,7 +61,12 @@ jobs:
           MSIZE=$(wc -c < "data/Krónan_Master_Skrá.xlsx" 2>/dev/null || echo 0)
           echo "Master: $MSIZE bytes"
           if [ "$MSIZE" -gt 100000 ]; then
-            KRONAN_BASE=data python scripts/update_dashboard_data.py && echo "Rebuilt OK" || echo "Rebuild FAILED"
+            KRONAN_BASE=data python scripts/update_dashboard_data.py 2>&1 | tee data/rebuild_output.txt
+            RC=${PIPESTATUS[0]}
+            echo "EXIT:$RC" >> data/rebuild_output.txt
+            # Check what dates ended up in the HTML
+            python3 -c "import re; h=open('data/Krónan_Dashboard.html').read(); d=sorted(set(re.findall(r'2026-05-\\d{2}',h))); print('HTML dates:',len(d),'last:',d[-1] if d else 'none')" 2>&1 | tee -a data/rebuild_output.txt
+            exit $RC
           fi
 
       - name: Deploy to Netlify
