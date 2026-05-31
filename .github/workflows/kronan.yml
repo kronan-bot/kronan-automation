@@ -40,10 +40,12 @@ jobs:
           DROPBOX_APP_SECRET:    ${{ secrets.DROPBOX_APP_SECRET }}
           NETLIFY_TOKEN:         ${{ secrets.NETLIFY_TOKEN }}
           NETLIFY_SITE_ID:       ${{ secrets.NETLIFY_SITE_ID }}
-        run: python scripts/cloud_runner.py
+        run: |
+          python scripts/cloud_runner.py 2>&1 | tee data/debug.txt
+          exit ${PIPESTATUS[0]}
 
       - name: Commit updated data files
-        if: steps.runner.outputs.processed == 'true'
+        if: always()
         run: |
           git config user.name  "KrÃ³nan Bot"
           git config user.email "kronan-bot@tokyo.is"
