@@ -1,5 +1,5 @@
 
-📂 Reading report: /tmp/tmp689cbcur.xlsx
+📂 Reading report: /tmp/tmpz_n5hdx1.xlsx
   Date: 2026-05-30 00:00:00, Stores: 18, Products: 104
 
 📒 Loading master file...
@@ -22,7 +22,7 @@ SyntaxError: Non-UTF-8 code starting with '\xc2' in file /home/runner/work/krona
 
 → Found: 2026-05-30_Krónan söluskýrsla.xlsx
   Downloaded (48,847 bytes)
-  $ /opt/hostedtoolcache/Python/3.11.15/x64/bin/python /home/runner/work/kronan-automation/kronan-automation/scripts/kronan_master.py /tmp/tmp689cbcur.xlsx
+  $ /opt/hostedtoolcache/Python/3.11.15/x64/bin/python /home/runner/work/kronan-automation/kronan-automation/scripts/kronan_master.py /tmp/tmpz_n5hdx1.xlsx
   $ /opt/hostedtoolcache/Python/3.11.15/x64/bin/python /home/runner/work/kronan-automation/kronan-automation/scripts/update_dashboard_data.py
   ✗ update_dashboard_data.py failed (exit 1)
 [output] processed=false
