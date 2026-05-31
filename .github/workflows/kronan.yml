@@ -1,19 +1,15 @@
 name: Krónan Daily Report
 
 on:
-  # Run every 15 minutes from 07:00 to 10:00 UTC
-  # Iceland is UTC year-round (no daylight saving time)
   schedule:
     - cron: '0,15,30,45 7,8,9 * * *'
-
-  # Allow manual trigger from GitHub Actions tab
   workflow_dispatch:
 
 jobs:
   process:
     runs-on: ubuntu-latest
     permissions:
-      contents: write   # needed to commit data files back to repo
+      contents: write
     env:
       FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
 
@@ -40,13 +36,18 @@ jobs:
           DROPBOX_APP_SECRET:    ${{ secrets.DROPBOX_APP_SECRET }}
           NETLIFY_TOKEN:         ${{ secrets.NETLIFY_TOKEN }}
           NETLIFY_SITE_ID:       ${{ secrets.NETLIFY_SITE_ID }}
-        run: python scripts/cloud_runner.py
+        run: |
+          mkdir -p data
+          python scripts/cloud_runner.py 2>&1 | tee data/runner_output.txt
+          PY_EXIT=${PIPESTATUS[0]}
+          echo "---EXIT:$PY_EXIT---" >> data/runner_output.txt
+          exit $PY_EXIT
 
-      - name: Commit updated data files
-        if: steps.runner.outputs.processed == 'true'
+      - name: Commit results
+        if: always()
         run: |
           git config user.name "Krónan Bot"
           git config user.email "kronan-bot@tokyo.is"
-          git add data/Krónan_Master_Skrá.xlsx data/Krónan_Dashboard.html
-          git diff --staged --quiet || git commit -m "Auto: process report $(date -u '+%Y-%m-%d %H:%M UTC')"
+          git add data/
+          git diff --staged --quiet || git commit -m "run: $(date -u '+%Y-%m-%d %H:%M UTC') processed=${{ steps.runner.outputs.processed }}"
           git push
