@@ -1,5 +1,5 @@
 
-📂 Reading report: /tmp/tmpspnopne4.xlsx
+📂 Reading report: /tmp/tmp8rkbllm5.xlsx
   Date: 2026-05-30 00:00:00, Stores: 18, Products: 104
 
 📒 Loading master file...
@@ -14,7 +14,11 @@
   ✓ Monthly products summary rebuilt (1 months)
 
 ✅ Master file saved: /home/runner/work/kronan-automation/kronan-automation/data/Krónan_Master_Skrá.xlsx
-SyntaxError: Non-UTF-8 code starting with '\xc2' in file /home/runner/work/kronan-automation/kronan-automation/scripts/update_dashboard_data.py on line 185, but no encoding declared; see https://peps.python.org/pep-0263/ for details
+  (marker path)
+✅ Dashboard data updated — 30 days, 22 stores, 140 products
+✅ Store×Product data patched — 18909 product-store-day combos
+[netlify] Found existing site: kronan-dashboard (id=f1b805e1-8516-4270-88eb-5811a594c25b)
+[netlify] Deployed → https://kronan-dashboard.netlify.app
   Folder has 2 entries
   Entry: [FolderMetadata] 'Processed'
   Entry: [FileMetadata] '2026-05-30_Krónan söluskýrsla.xlsx'
@@ -22,8 +26,10 @@ SyntaxError: Non-UTF-8 code starting with '\xc2' in file /home/runner/work/krona
 
 → Found: 2026-05-30_Krónan söluskýrsla.xlsx
   Downloaded (48,847 bytes)
-  $ /opt/hostedtoolcache/Python/3.11.15/x64/bin/python /home/runner/work/kronan-automation/kronan-automation/scripts/kronan_master.py /tmp/tmpspnopne4.xlsx
+  $ /opt/hostedtoolcache/Python/3.11.15/x64/bin/python /home/runner/work/kronan-automation/kronan-automation/scripts/kronan_master.py /tmp/tmp8rkbllm5.xlsx
   $ /opt/hostedtoolcache/Python/3.11.15/x64/bin/python /home/runner/work/kronan-automation/kronan-automation/scripts/update_dashboard_data.py
-  ✗ update_dashboard_data.py failed (exit 1)
-[output] processed=false
+  $ /opt/hostedtoolcache/Python/3.11.15/x64/bin/python /home/runner/work/kronan-automation/kronan-automation/scripts/netlify_deploy.py
+  ✓ Moved → Processed/20260601_014237_2026-05-30_Krónan söluskýrsla.xlsx
+  ✅ Done: 2026-05-30_Krónan söluskýrsla.xlsx
+[output] processed=true
 ---EXIT:0---

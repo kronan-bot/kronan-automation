@@ -1,3 +1,5 @@
-SyntaxError: Non-UTF-8 code starting with '\xc2' in file /home/runner/work/kronan-automation/kronan-automation/scripts/update_dashboard_data.py on line 185, but no encoding declared; see https://peps.python.org/pep-0263/ for details
-EXIT:1
-HTML dates: 29 last: 2026-05-29
+  (marker path)
+✅ Dashboard data updated — 30 days, 22 stores, 140 products
+✅ Store×Product data patched — 18909 product-store-day combos
+EXIT:0
+HTML dates: 30 last: 2026-05-30
