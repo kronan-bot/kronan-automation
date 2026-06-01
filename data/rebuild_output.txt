@@ -1,5 +1,5 @@
   (marker path)
-✅ Dashboard data updated — 30 days, 22 stores, 140 products
-✅ Store×Product data patched — 18909 product-store-day combos
+✅ Dashboard data updated — 31 days, 22 stores, 140 products
+✅ Store×Product data patched — 19394 product-store-day combos
 EXIT:0
-HTML dates: 30 last: 2026-05-30
+HTML dates: 31 last: 2026-05-31
