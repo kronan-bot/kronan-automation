@@ -38,6 +38,28 @@ jobs:
             echo "Dashboard present: $(wc -c < data/Krónan_Dashboard.html) bytes"
           fi
 
+      - name: Refresh scripts from Dropbox
+        env:
+          DROPBOX_REFRESH_TOKEN: ${{ secrets.DROPBOX_REFRESH_TOKEN }}
+          DROPBOX_APP_KEY:       ${{ secrets.DROPBOX_APP_KEY }}
+          DROPBOX_APP_SECRET:    ${{ secrets.DROPBOX_APP_SECRET }}
+        run: |
+          python3 -c "
+import os, dropbox
+dbx = dropbox.Dropbox(
+    oauth2_refresh_token=os.environ['DROPBOX_REFRESH_TOKEN'],
+    app_key=os.environ['DROPBOX_APP_KEY'],
+    app_secret=os.environ['DROPBOX_APP_SECRET'],
+)
+src = '/Kronan_Scripts/update_dashboard_data.py'
+dst = 'scripts/update_dashboard_data.py'
+try:
+    dbx.files_download_to_file(dst, src)
+    print('Downloaded update_dashboard_data.py from Dropbox')
+except Exception as e:
+    print(f'Could not download: {e}')
+"
+
       - name: Run cloud runner
         id: runner
         env:
