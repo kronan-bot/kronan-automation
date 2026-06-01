@@ -44,21 +44,12 @@ jobs:
           DROPBOX_APP_KEY:       ${{ secrets.DROPBOX_APP_KEY }}
           DROPBOX_APP_SECRET:    ${{ secrets.DROPBOX_APP_SECRET }}
         run: |
-          python3 -c "
-import os, dropbox
-dbx = dropbox.Dropbox(
-    oauth2_refresh_token=os.environ['DROPBOX_REFRESH_TOKEN'],
-    app_key=os.environ['DROPBOX_APP_KEY'],
-    app_secret=os.environ['DROPBOX_APP_SECRET'],
-)
-src = '/Kronan_Scripts/update_dashboard_data.py'
-dst = 'scripts/update_dashboard_data.py'
-try:
-    dbx.files_download_to_file(dst, src)
-    print('Downloaded update_dashboard_data.py from Dropbox')
-except Exception as e:
-    print(f'Could not download: {e}')
-"
+          DTOKEN=$(curl -s https://api.dropbox.com/oauth2/token -d grant_type=refresh_token -d refresh_token=$DROPBOX_REFRESH_TOKEN -d client_id=$DROPBOX_APP_KEY -d client_secret=$DROPBOX_APP_SECRET | python3 -c "import sys,json; print(json.load(sys.stdin).get('access_token',''))")
+          if [ -n "$DTOKEN" ]; then
+            curl -sX POST https://content.dropboxapi.com/2/files/download               -H "Authorization: Bearer $DTOKEN"               -H 'Dropbox-API-Arg: {"path":"/Kr\u00f3nan_Scripts/update_dashboard_data.py"}'               -o scripts/update_dashboard_data.py && echo "Downloaded update_dashboard_data.py ($(wc -c < scripts/update_dashboard_data.py) bytes)" || echo "Download failed"
+          else
+            echo "Could not get Dropbox token"
+          fi
 
       - name: Run cloud runner
         id: runner
