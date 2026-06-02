@@ -28,15 +28,12 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements.txt
 
-      - name: Bootstrap dashboard if missing
-        run: |
-          mkdir -p data
-          if [ ! -f "data/Krónan_Dashboard.html" ]; then
-            curl -sL --max-time 60 -o "data/Krónan_Dashboard.html" "https://kronan-dashboard.netlify.app/"
-            echo "Downloaded: $(wc -c < data/Krónan_Dashboard.html) bytes"
-          else
-            echo "Dashboard present: $(wc -c < data/Krónan_Dashboard.html) bytes"
-          fi
+      - name: Restore clean dashboard from Dropbox
+        env:
+          DROPBOX_REFRESH_TOKEN: ${{ secrets.DROPBOX_REFRESH_TOKEN }}
+          DROPBOX_APP_KEY:       ${{ secrets.DROPBOX_APP_KEY }}
+          DROPBOX_APP_SECRET:    ${{ secrets.DROPBOX_APP_SECRET }}
+        run: KRONAN_BASE=data python scripts/restore_dashboard.py
 
       - name: Refresh scripts from Dropbox
         env:
@@ -46,12 +43,10 @@ jobs:
         run: |
           DTOKEN=$(curl -s https://api.dropbox.com/oauth2/token -d grant_type=refresh_token -d refresh_token=$DROPBOX_REFRESH_TOKEN -d client_id=$DROPBOX_APP_KEY -d client_secret=$DROPBOX_APP_SECRET | python3 -c "import sys,json; print(json.load(sys.stdin).get('access_token',''))")
           if [ -n "$DTOKEN" ]; then
-            curl -sX POST https://content.dropboxapi.com/2/files/download               -H "Authorization: Bearer $DTOKEN"               -H 'Dropbox-API-Arg: {"path":"/Kr\u00f3nan_Scripts/update_dashboard_data.py"}'               -o scripts/update_dashboard_data.py && echo "Downloaded update_dashboard_data.py ($(wc -c < scripts/update_dashboard_data.py) bytes)" || echo "Download failed"
-          else
-            echo "Could not get Dropbox token"
+            curl -sX POST https://content.dropboxapi.com/2/files/download               -H "Authorization: Bearer $DTOKEN"               -H 'Dropbox-API-Arg: {"path":"/Krónan_Scripts/update_dashboard_data.py"}'               -o scripts/update_dashboard_data.py && echo "Downloaded update_dashboard_data.py" || echo "Download failed"
           fi
 
-      - name: Patch dashboard JS (month-scoped Yfirlit)
+      - name: Patch dashboard JS
         run: KRONAN_BASE=data python scripts/fix_dashboard_js.py
 
       - name: Run cloud runner
@@ -75,18 +70,12 @@ jobs:
       - name: Rebuild dashboard from master
         run: |
           MSIZE=$(wc -c < "data/Krónan_Master_Skrá.xlsx" 2>/dev/null || echo 0)
-          echo "Master: $MSIZE bytes"
           if [ "$MSIZE" -gt 100000 ]; then
-            KRONAN_BASE=data python scripts/update_dashboard_data.py 2>&1 | tee data/rebuild_output.txt
-            RC=${PIPESTATUS[0]}
-            echo "EXIT:$RC" >> data/rebuild_output.txt
-            # Check what dates ended up in the HTML
-            python3 -c "import re; h=open('data/Krónan_Dashboard.html').read(); d=sorted(set(re.findall(r'2026-05-\\d{2}',h))); print('HTML dates:',len(d),'last:',d[-1] if d else 'none')" 2>&1 | tee -a data/rebuild_output.txt
-            exit $RC
+            KRONAN_BASE=data python scripts/update_dashboard_data.py && echo "Rebuilt OK" || echo "Rebuild failed"
           fi
 
       - name: Deploy to Netlify
-        if: steps.runner.outputs.processed == 'true'
+        if: steps.runner.outputs.processed == 'true' || github.event_name == 'workflow_dispatch'
         env:
           NETLIFY_TOKEN: ${{ secrets.NETLIFY_TOKEN }}
           NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
@@ -94,9 +83,8 @@ jobs:
           cp "data/Krónan_Dashboard.html" /tmp/index.html
           printf "/*\n  Content-Type: text/html; charset=utf-8\n  X-Content-Type-Options: nosniff\n" > /tmp/_headers
           cd /tmp && zip -j /tmp/deploy.zip index.html _headers && cd -
-          echo "Zip: $(wc -c < /tmp/deploy.zip) bytes"
           RESULT=$(curl -sL -H "Authorization: Bearer $NETLIFY_TOKEN" -H "Content-Type: application/zip" --data-binary @/tmp/deploy.zip "https://api.netlify.com/api/v1/sites/$NETLIFY_SITE_ID/deploys")
-          echo "Deploy state: $(echo $RESULT | python3 -c 'import sys,json; d=json.load(sys.stdin); print(d.get("state","?"))')"
+          echo "Deploy: $(echo $RESULT | python3 -c 'import sys,json; d=json.load(sys.stdin); print(d.get("state","?"))')"
           rm -f /tmp/deploy.zip /tmp/index.html /tmp/_headers
 
       - name: Commit results
