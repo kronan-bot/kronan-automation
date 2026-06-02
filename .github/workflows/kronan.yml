@@ -2,7 +2,7 @@ name: Krónan Daily Report
 
 on:
   schedule:
-    - cron: '0,15,30,45 7,8,9 * * *'
+    - cron: '0,15,30,45 6,7,8,9,10,11 * * *'
   workflow_dispatch:
 
 jobs:
