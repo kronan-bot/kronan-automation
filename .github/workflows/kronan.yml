@@ -86,7 +86,7 @@ jobs:
           fi
 
       - name: Deploy to Netlify
-        if: steps.runner.outputs.processed == 'true'
+        if: steps.runner.outputs.processed == 'true' || github.event_name == 'workflow_dispatch'
         env:
           NETLIFY_TOKEN: ${{ secrets.NETLIFY_TOKEN }}
           NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
