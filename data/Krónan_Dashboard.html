@@ -395,21 +395,13 @@ function getStoresForDate(d) {
 }
 
 
-function monthLabel(m) {
-  if (!m) return 'Allt';
-  const parts = m.split('-');
-  const islic = ['Jan','Feb','Mar','Apr','Maí','Jún','Júl','Ágú','Sep','Okt','Nóv','Des'];
-  return (islic[parseInt(parts[1])-1] || parts[1]) + ' ' + parts[0];
-}
-
 const COMMISSION = 0.1975;
 
 function render() {
   const isAll = currentDate === 'all';
-  const activeDates = currentMonth ? DATES.filter(d => d.startsWith(currentMonth)) : DATES;
-  const totalSale = isAll ? activeDates.reduce((s,d)=>s+(DAILY[d]||0),0) : DAILY[currentDate];
-  const totalQty  = isAll ? activeDates.reduce((s,d)=>s+(DAILY_QTY[d]||0),0) : DAILY_QTY[currentDate];
-  const dayAvg    = activeDates.reduce((s,d)=>s+(DAILY[d]||0),0) / activeDates.length;
+  const totalSale = isAll ? Object.values(DAILY).reduce((s,v)=>s+v,0) : DAILY[currentDate];
+  const totalQty  = isAll ? Object.values(DAILY_QTY).reduce((s,v)=>s+v,0) : DAILY_QTY[currentDate];
+  const dayAvg    = Object.values(DAILY).reduce((s,v)=>s+v,0) / DATES.length;
   const topStores = getStoresForDate(currentDate);
 
   // ── KPIs ────────────────────────────────────────────────────────────────
@@ -427,7 +419,7 @@ function render() {
         <div class="kpi-commission-label">Eftir þóknun Krónan (19,75%)</div>
         <div class="kpi-commission">${fmt(netSale)} &nbsp;<span style="font-size:12px;font-weight:500;color:var(--muted)">${fmtKr(netSale)}</span></div>
       </div>
-      <div class="kpi t-blue"><div class="kpi-label">Fjöldi daga</div><div class="kpi-value">${activeDates.length}</div><div class="kpi-sub">${monthLabel(currentMonth)}</div></div>
+      <div class="kpi t-blue"><div class="kpi-label">Fjöldi daga</div><div class="kpi-value">${DATES.length}</div><div class="kpi-sub">${monthLabel(currentMonth)}</div></div>
       <div class="kpi t-green"><div class="kpi-label">Meðaltal á dag</div><div class="kpi-value">${fmt(dayAvg)}</div><div class="kpi-sub">${fmtKr(dayAvg)}</div></div>
       <div class="kpi t-amber"><div class="kpi-label">Besti dagur</div><div class="kpi-value" style="font-size:18px;padding-top:6px">${dayLabel(DATES[bestIdx])}</div><div class="kpi-sub">${fmtKr(Math.max(...vals))}</div></div>`;
   } else {
@@ -452,9 +444,9 @@ function render() {
   const mainCtx = document.getElementById('mainChart').getContext('2d');
   if (mainChart) mainChart.destroy();
   if (isAll) {
-    const vals = activeDates.map(d => DAILY[d]);
+    const vals = DATES.map(d => DAILY[d]);
     const maxV = Math.max(...vals);
-    mainChart = new Chart(mainCtx, { type:'bar', data:{ labels:activeDates.map(dayLabel), datasets:[{ data:vals, backgroundColor: vals.map(v=>v===maxV?'#1d4ed8':'#60a5fa'), borderRadius:8, borderSkipped:false }] }, options:chartOpts() });
+    mainChart = new Chart(mainCtx, { type:'bar', data:{ labels:DATES.map(dayLabel), datasets:[{ data:vals, backgroundColor: vals.map(v=>v===maxV?'#1d4ed8':'#60a5fa'), borderRadius:8, borderSkipped:false }] }, options:chartOpts() });
   } else {
     const s = getStoresForDate(currentDate).slice(0,10);
     mainChart = new Chart(mainCtx, { type:'bar', data:{ labels:s.map(([n])=>n.replace('Krónan','')), datasets:[{ data:s.map(([,v])=>v.sale), backgroundColor:s.map(([n])=>STORE_COLOR_MAP[n]||'#999'), borderRadius:8, borderSkipped:false }] }, options:chartOpts() });
@@ -710,8 +702,7 @@ function renderStoreProducts() {
   if (!wrap) return;
 
   // Aggregate data for current date(s)
-  const activeDates = currentMonth ? DATES.filter(d => d.startsWith(currentMonth)) : DATES;
-  const dates = currentDate === 'all' ? activeDates : [currentDate];
+  const dates = currentDate === 'all' ? DATES : [currentDate];
   const storeMap = {}; // {storeName: {prodName: [totalSale, totalQty]}}
 
   dates.forEach(d => {
