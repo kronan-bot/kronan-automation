@@ -51,6 +51,9 @@ jobs:
             echo "Could not get Dropbox token"
           fi
 
+      - name: Patch dashboard JS (month-scoped Yfirlit)
+        run: KRONAN_BASE=data python scripts/fix_dashboard_js.py
+
       - name: Run cloud runner
         id: runner
         env:
