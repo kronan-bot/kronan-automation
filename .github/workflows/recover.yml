@@ -1,0 +1,40 @@
+name: Recover June 1 Report
+on:
+  workflow_dispatch:
+jobs:
+  recover:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: pip install dropbox
+      - name: Move June 1 back from Processed
+        env:
+          DROPBOX_REFRESH_TOKEN: ${{ secrets.DROPBOX_REFRESH_TOKEN }}
+          DROPBOX_APP_KEY:       ${{ secrets.DROPBOX_APP_KEY }}
+          DROPBOX_APP_SECRET:    ${{ secrets.DROPBOX_APP_SECRET }}
+        run: |
+          python3 - << 'PYEOF'
+import os, dropbox
+from dropbox.exceptions import ApiError
+dbx = dropbox.Dropbox(
+    oauth2_refresh_token=os.environ['DROPBOX_REFRESH_TOKEN'],
+    app_key=os.environ['DROPBOX_APP_KEY'],
+    app_secret=os.environ['DROPBOX_APP_SECRET'],
+)
+# List Processed folder to find June 1 file
+result = dbx.files_list_folder('/Krónan Reports/Processed')
+june1 = next((e.path_display for e in result.entries if '2026-06-01' in e.name), None)
+if june1:
+    dest = '/Krónan Reports/2026-06-01_Krónan söluskýrsla.xlsx'
+    dbx.files_move_v2(june1, dest)
+    print(f'Moved {june1} back to {dest}')
+else:
+    print('June 1 file not found in Processed — nothing to move')
+PYEOF
