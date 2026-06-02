@@ -1,10 +1,9 @@
 Connected to Dropbox OK
 Account: Ari Alexander Gudjonsson <ari@tokyo.is>
-Folder '/Krónan Reports': 2 entries, has_more=False
+Folder '/Krónan Reports': 1 entries, has_more=False
   [FolderMetadata] '/Krónan Reports/Processed'
-  [FileMetadata] '/Krónan Reports/2026-05-30_Krónan söluskýrsla.xlsx'
-Folder '/Kronan Reports': ERROR ApiError('faf78065081d446caef118326a1c6085', ListFolderError('path', LookupError('not_found', None)))
-Folder '/kronan reports': ERROR ApiError('24260556cb80478ca0134cb26a1c6085', ListFolderError('path', LookupError('not_found', None)))
+Folder '/Kronan Reports': ERROR ApiError('90845d704a6440f7a2ff50126a1ee956', ListFolderError('path', LookupError('not_found', None)))
+Folder '/kronan reports': ERROR ApiError('af27eb589961411da2c416fe6a1ee956', ListFolderError('path', LookupError('not_found', None)))
 Root listing: 65 entries
   [FolderMetadata] '/New poke ideas'
   [FolderMetadata] '/บริษัท Krás - ปลอกบรรจุภัณฑ์อาหาร'
@@ -28,7 +27,6 @@ Root listing: 65 entries
   [FolderMetadata] '/New Lunch offer idea'
   [FolderMetadata] '/Onigiri NEW label 180326'
   [FolderMetadata] '/PRIORITY PROJET'
-  [FolderMetadata] '/HER'
   [FolderMetadata] '/Ready photo for ADS'
   [FolderMetadata] '/Manul คู่มือ'
   [FolderMetadata] '/ideas for food and SoMe'
@@ -45,6 +43,7 @@ Root listing: 65 entries
   [FolderMetadata] '/Drinks'
   [FolderMetadata] '/Krónan_Scripts'
   [FolderMetadata] '/kronan-automation'
+  [FolderMetadata] '/HEF'
   [FileMetadata] '/Yakitori_SOP_Step_by_Step.xlsx'
   [FileMetadata] '/Yakitori_Sauce_5L_10L_Finished.xlsx'
   [FileMetadata] '/Yakitori_Sauce_Optimized new 18.12.25'
