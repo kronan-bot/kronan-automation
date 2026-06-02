@@ -103,4 +103,5 @@ jobs:
           git config user.email "kronan-bot@tokyo.is"
           git add data/
           git diff --staged --quiet || git commit -m "run: $(date -u '+%Y-%m-%d %H:%M UTC') processed=${{ steps.runner.outputs.processed }}"
+          git pull --rebase origin main || true
           git push
