@@ -395,6 +395,14 @@ function getStoresForDate(d) {
 }
 
 
+
+function monthLabel(m) {
+  if (!m) return '';
+  const parts = m.split('-');
+  const names = ['Jan','Feb','Mar','Apr','Maí','Jún','Júl','Ágú','Sep','Okt','Nóv','Des'];
+  return (names[parseInt(parts[1])-1] || parts[1]) + ' ' + parts[0];
+}
+
 const COMMISSION = 0.1975;
 
 function render() {
