@@ -11,7 +11,7 @@ import os, sys
 
 BASE = os.environ.get('KRONAN_BASE', 'data')
 HTML = os.path.join(BASE, 'Krónan_Dashboard.html')
-MARKER = '/* MONTH_SCOPED_YFIRLIT_V2 */'
+MARKER = '/* MONTH_SCOPED_YFIRLIT_V3 */'
 OLD_MARKER = '/* MONTH_SCOPED_YFIRLIT */'
 
 if not os.path.exists(HTML):
@@ -106,7 +106,7 @@ JS_PATCH = """
     var storeMax = matrix.map(function(row){ return Math.max.apply(null,row.concat([0])); });
     var storeMin = matrix.map(function(row){ return Math.min.apply(null,row.concat([0])); });
 
-    function heatColor(v,fn,mx) {
+    function heatColor(v,mn,mx) {
       var t = mx===mn ? 0.5 : (v-mn)/(mx-mn);
       return 'rgb('+Math.round(240-t*218)+','+Math.round(253-t*152)+','+Math.round(244-t*192)+')';
     }
