@@ -1405,7 +1405,7 @@ renderForecast();
 renderAccuracy();
 
 
-// /* MONTH_SCOPED_YFIRLIT */
+// /* MONTH_SCOPED_YFIRLIT_V2 */
 (function() {
 
   // ── 1. KPI override: month-scoped totals in Yfirlit ──────────────────────
@@ -1436,10 +1436,12 @@ renderAccuracy();
       '<div class="kpi t-amber"><div class="kpi-label">Besti dagur</div><div class="kpi-value" style="font-size:18px;padding-top:6px">' + (mDates[bestIdx]?dayLabel(mDates[bestIdx]):'-') + '</div><div class="kpi-sub">' + fmtKr(Math.max.apply(null,vals)) + '</div></div>';
   };
 
-  // ── 2. Heatmap override: buildHeatmap filtered to current month ───────────
+  // ── 2. Heatmap override: always filtered to current month tab ─────────────
+  //    When a month tab is selected, the heatmap shows ONLY that month's dates
+  //    regardless of whether Yfirlit or a specific day is active.
   var _baseHeat = buildHeatmap;
   window.buildHeatmap = function monthScopedHeatmap() {
-    if (currentDate !== 'all' || !currentMonth) { _baseHeat(); return; }
+    if (!currentMonth) { _baseHeat(); return; }
     var mDates = DATES.filter(function(d) { return d.startsWith(currentMonth); });
     if (!mDates.length) { _baseHeat(); return; }
 
@@ -1467,7 +1469,7 @@ renderAccuracy();
     var storeMax = matrix.map(function(row){ return Math.max.apply(null,row.concat([0])); });
     var storeMin = matrix.map(function(row){ return Math.min.apply(null,row.concat([0])); });
 
-    function heatColor(v,mn,mx) {
+    function heatColor(v,fn,mx) {
       var t = mx===mn ? 0.5 : (v-mn)/(mx-mn);
       return 'rgb('+Math.round(240-t*218)+','+Math.round(253-t*152)+','+Math.round(244-t*192)+')';
     }
@@ -1475,8 +1477,14 @@ renderAccuracy();
       return ((mx===mn?0.5:(v-mn)/(mx-mn))>0.5)?'#fff':'#374151';
     }
 
+    // Highlight selected day column
+    var selIdx = (currentDate !== 'all') ? mDates.indexOf(currentDate) : -1;
+
     var html = '<table class="heatmap"><thead><tr><th class="store-col">Verslun</th>';
-    dayLabels.forEach(function(l){ html += '<th>'+l+'</th>'; });
+    dayLabels.forEach(function(l,i){
+      var style = (i===selIdx) ? ' style="background:#1d4ed8;color:#fff;border-radius:6px"' : '';
+      html += '<th'+style+'>'+l+'</th>';
+    });
     html += '<th>Heild</th><th style="color:var(--green)">Eftir þókn.</th></tr></thead><tbody>';
 
     storeNames.forEach(function(name,si) {
@@ -1486,7 +1494,8 @@ renderAccuracy();
       matrix[si].forEach(function(val,di) {
         var bg = heatColor(val,storeMin[si],storeMax[si]);
         var tc = textColor(val,storeMin[si],storeMax[si]);
-        html += '<td><div class="hm-cell" style="background:'+bg+';color:'+tc+'" title="'+name+' · '+dayLabels[di].replace('<br>',' ')+' · '+fmtKr(val)+'">'+fmt(val)+'</div></td>';
+        var border = (di===selIdx) ? ';outline:2px solid #1d4ed8' : '';
+        html += '<td><div class="hm-cell" style="background:'+bg+';color:'+tc+border+'" title="'+name+' · '+dayLabels[di].replace('<br>',' ')+' · '+fmtKr(val)+'">'+fmt(val)+'</div></td>';
       });
       html += '<td style="font-weight:700;color:var(--text)">'+fmt(total)+'</td>';
       html += '<td style="font-weight:700;color:var(--green)">'+fmt(net)+'</td></tr>';
