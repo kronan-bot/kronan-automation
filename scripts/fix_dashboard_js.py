@@ -3,7 +3,7 @@
 fix_dashboard_js.py
 Injects month-scoped Yfirlit overrides into the dashboard HTML.
 1. KPI override  — shows only current-month totals in Yfirlit
-2. Heatmap override — buildHeatmap filtered to current month
+2. Heatmap override — buildHeatmap always filtered to current month tab
 Safe: appends AFTER existing code, never modifies original functions.
 Idempotent: checks for marker before injecting.
 """
@@ -11,7 +11,8 @@ import os, sys
 
 BASE = os.environ.get('KRONAN_BASE', 'data')
 HTML = os.path.join(BASE, 'Krónan_Dashboard.html')
-MARKER = '/* MONTH_SCOPED_YFIRLIT */'
+MARKER = '/* MONTH_SCOPED_YFIRLIT_V2 */'
+OLD_MARKER = '/* MONTH_SCOPED_YFIRLIT */'
 
 if not os.path.exists(HTML):
     print('Dashboard not found, skipping')
@@ -21,8 +22,19 @@ with open(HTML, 'r', encoding='utf-8') as f:
     src = f.read()
 
 if MARKER in src:
-    print('Month-scoped Yfirlit already injected, nothing to do')
+    print('Month-scoped Yfirlit V2 already injected, nothing to do')
     sys.exit(0)
+
+# Remove old V1 injection if present
+if OLD_MARKER in src:
+    # Find and remove the old IIFE block
+    old_start = src.rfind('\n// /* MONTH_SCOPED_YFIRLIT */')
+    old_end = src.find('\n// /* MONTH_SCOPED_YFIRLIT */', old_start)
+    if old_start >= 0 and old_end < 0:
+        # V1 is the last injection — remove from its start to just before </script>
+        close_tag = src.rfind('</script>')
+        src = src[:old_start] + src[close_tag:]
+        print('Removed old V1 injection')
 
 inject_point = src.rfind('</script>')
 if inject_point < 0:
@@ -61,10 +73,12 @@ JS_PATCH = """
       '<div class="kpi t-amber"><div class="kpi-label">Besti dagur</div><div class="kpi-value" style="font-size:18px;padding-top:6px">' + (mDates[bestIdx]?dayLabel(mDates[bestIdx]):'-') + '</div><div class="kpi-sub">' + fmtKr(Math.max.apply(null,vals)) + '</div></div>';
   };
 
-  // ── 2. Heatmap override: buildHeatmap filtered to current month ───────────
+  // ── 2. Heatmap override: always filtered to current month tab ─────────────
+  //    When a month tab is selected, the heatmap shows ONLY that month's dates
+  //    regardless of whether Yfirlit or a specific day is active.
   var _baseHeat = buildHeatmap;
   window.buildHeatmap = function monthScopedHeatmap() {
-    if (currentDate !== 'all' || !currentMonth) { _baseHeat(); return; }
+    if (!currentMonth) { _baseHeat(); return; }
     var mDates = DATES.filter(function(d) { return d.startsWith(currentMonth); });
     if (!mDates.length) { _baseHeat(); return; }
 
@@ -92,7 +106,7 @@ JS_PATCH = """
     var storeMax = matrix.map(function(row){ return Math.max.apply(null,row.concat([0])); });
     var storeMin = matrix.map(function(row){ return Math.min.apply(null,row.concat([0])); });
 
-    function heatColor(v,mn,mx) {
+    function heatColor(v,fn,mx) {
       var t = mx===mn ? 0.5 : (v-mn)/(mx-mn);
       return 'rgb('+Math.round(240-t*218)+','+Math.round(253-t*152)+','+Math.round(244-t*192)+')';
     }
@@ -100,8 +114,14 @@ JS_PATCH = """
       return ((mx===mn?0.5:(v-mn)/(mx-mn))>0.5)?'#fff':'#374151';
     }
 
+    // Highlight selected day column
+    var selIdx = (currentDate !== 'all') ? mDates.indexOf(currentDate) : -1;
+
     var html = '<table class="heatmap"><thead><tr><th class="store-col">Verslun</th>';
-    dayLabels.forEach(function(l){ html += '<th>'+l+'</th>'; });
+    dayLabels.forEach(function(l,i){
+      var style = (i===selIdx) ? ' style="background:#1d4ed8;color:#fff;border-radius:6px"' : '';
+      html += '<th'+style+'>'+l+'</th>';
+    });
     html += '<th>Heild</th><th style="color:var(--green)">Eftir þókn.</th></tr></thead><tbody>';
 
     storeNames.forEach(function(name,si) {
@@ -111,7 +131,8 @@ JS_PATCH = """
       matrix[si].forEach(function(val,di) {
         var bg = heatColor(val,storeMin[si],storeMax[si]);
         var tc = textColor(val,storeMin[si],storeMax[si]);
-        html += '<td><div class="hm-cell" style="background:'+bg+';color:'+tc+'" title="'+name+' \xb7 '+dayLabels[di].replace('<br>',' ')+' \xb7 '+fmtKr(val)+'">'+fmt(val)+'</div></td>';
+        var border = (di===selIdx) ? ';outline:2px solid #1d4ed8' : '';
+        html += '<td><div class="hm-cell" style="background:'+bg+';color:'+tc+border+'" title="'+name+' \xb7 '+dayLabels[di].replace('<br>',' ')+' \xb7 '+fmtKr(val)+'">'+fmt(val)+'</div></td>';
       });
       html += '<td style="font-weight:700;color:var(--text)">'+fmt(total)+'</td>';
       html += '<td style="font-weight:700;color:var(--green)">'+fmt(net)+'</td></tr>';
@@ -130,4 +151,4 @@ patched = src[:inject_point] + JS_PATCH + src[inject_point:]
 with open(HTML, 'w', encoding='utf-8') as f:
     f.write(patched)
 
-print(f'✅ Month-scoped Yfirlit + Heatmap injected ({len(patched):,} bytes)')
+print(f'✅ Month-scoped Yfirlit + Heatmap (always month-scoped) injected ({len(patched):,} bytes)')
