@@ -1,13 +1,13 @@
 
-📂 Reading report: /tmp/tmpqlt3e27_.xlsx
-  Date: 2026-06-04 00:00:00, Stores: 18, Products: 84
+📂 Reading report: /tmp/tmpz4lpliu3.xlsx
+  Date: 2026-06-04 00:00:00, Stores: 18, Products: 95
 
 📒 Loading master file...
 
 ➕ Appending daily data...
-  ✓ Appended 18 store rows for 2026-06-04
-  ✓ Appended 84 product rows for 2026-06-04
-  ✓ Appended 520 store×product rows for 2026-06-04
+  ⚠ 2026-06-04 already in Dagleg - Verslanir, skipping.
+  ⚠ 2026-06-04 already in Dagleg - Vörur, skipping.
+  ⚠ 2026-06-04 already in Dagleg - Vara×Verslun, skipping.
 
 📅 Rebuilding monthly summaries...
   ✓ Monthly stores summary rebuilt (2 months)
@@ -24,11 +24,11 @@
   -> Yielding file: 2026-06-04_Krónan söluskýrsla.xlsx
 
 → Found: 2026-06-04_Krónan söluskýrsla.xlsx
-  Downloaded (38,997 bytes)
-  $ /opt/hostedtoolcache/Python/3.11.15/x64/bin/python /home/runner/work/kronan-automation/kronan-automation/scripts/kronan_master.py /tmp/tmpqlt3e27_.xlsx
+  Downloaded (49,375 bytes)
+  $ /opt/hostedtoolcache/Python/3.11.15/x64/bin/python /home/runner/work/kronan-automation/kronan-automation/scripts/kronan_master.py /tmp/tmpz4lpliu3.xlsx
   $ /opt/hostedtoolcache/Python/3.11.15/x64/bin/python /home/runner/work/kronan-automation/kronan-automation/scripts/update_dashboard_data.py
   $ /opt/hostedtoolcache/Python/3.11.15/x64/bin/python /home/runner/work/kronan-automation/kronan-automation/scripts/netlify_deploy.py
-  ✓ Moved → Processed/20260605_102908_2026-06-04_Krónan söluskýrsla.xlsx
+  ✓ Moved → Processed/20260605_111041_2026-06-04_Krónan söluskýrsla.xlsx
   ✅ Done: 2026-06-04_Krónan söluskýrsla.xlsx
 [output] processed=true
 ---EXIT:0---
