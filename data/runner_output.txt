@@ -1,13 +1,13 @@
 
-📂 Reading report: /tmp/tmpatarxi4g.xlsx
-  Date: 2026-06-06 00:00:00, Stores: 17, Products: 100
+📂 Reading report: /tmp/tmpl6xblcdf.xlsx
+  Date: 2026-06-07 00:00:00, Stores: 17, Products: 91
 
 📒 Loading master file...
 
 ➕ Appending daily data...
-  ✓ Appended 17 store rows for 2026-06-06
-  ✓ Appended 100 product rows for 2026-06-06
-  ✓ Appended 624 store×product rows for 2026-06-06
+  ✓ Appended 17 store rows for 2026-06-07
+  ✓ Appended 91 product rows for 2026-06-07
+  ✓ Appended 528 store×product rows for 2026-06-07
 
 📅 Rebuilding monthly summaries...
   ✓ Monthly stores summary rebuilt (2 months)
@@ -15,20 +15,20 @@
 
 ✅ Master file saved: /home/runner/work/kronan-automation/kronan-automation/data/Krónan_Master_Skrá.xlsx
   (marker path)
-✅ Dashboard data updated — 37 days, 22 stores, 141 products
-✅ Store×Product data patched — 23209 product-store-day combos
+✅ Dashboard data updated — 38 days, 22 stores, 141 products
+✅ Store×Product data patched — 23737 product-store-day combos
 [netlify] Deployed → https://kronan-dashboard.netlify.app
   Folder has 2 entries
   Entry: [FolderMetadata] 'Processed'
-  Entry: [FileMetadata] '2026-06-06_Krónan söluskýrsla.xlsx'
-  -> Yielding file: 2026-06-06_Krónan söluskýrsla.xlsx
+  Entry: [FileMetadata] '2026-06-07_Krónan söluskýrsla.xlsx'
+  -> Yielding file: 2026-06-07_Krónan söluskýrsla.xlsx
 
-→ Found: 2026-06-06_Krónan söluskýrsla.xlsx
-  Downloaded (47,116 bytes)
-  $ /opt/hostedtoolcache/Python/3.11.15/x64/bin/python /home/runner/work/kronan-automation/kronan-automation/scripts/kronan_master.py /tmp/tmpatarxi4g.xlsx
+→ Found: 2026-06-07_Krónan söluskýrsla.xlsx
+  Downloaded (41,023 bytes)
+  $ /opt/hostedtoolcache/Python/3.11.15/x64/bin/python /home/runner/work/kronan-automation/kronan-automation/scripts/kronan_master.py /tmp/tmpl6xblcdf.xlsx
   $ /opt/hostedtoolcache/Python/3.11.15/x64/bin/python /home/runner/work/kronan-automation/kronan-automation/scripts/update_dashboard_data.py
   $ /opt/hostedtoolcache/Python/3.11.15/x64/bin/python /home/runner/work/kronan-automation/kronan-automation/scripts/netlify_deploy.py
-  ✓ Moved → Processed/20260607_120844_2026-06-06_Krónan söluskýrsla.xlsx
-  ✅ Done: 2026-06-06_Krónan söluskýrsla.xlsx
+  ✓ Moved → Processed/20260608_124747_2026-06-07_Krónan söluskýrsla.xlsx
+  ✅ Done: 2026-06-07_Krónan söluskýrsla.xlsx
 [output] processed=true
 ---EXIT:0---
