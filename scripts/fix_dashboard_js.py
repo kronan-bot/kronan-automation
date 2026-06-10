@@ -11,8 +11,9 @@ import os, sys
 
 BASE = os.environ.get('KRONAN_BASE', 'data')
 HTML = os.path.join(BASE, 'Krónan_Dashboard.html')
-MARKER = '/* MONTH_SCOPED_YFIRLIT_V3 */'
+MARKER = '/* MONTH_SCOPED_YFIRLIT_V4 */'
 OLD_MARKER = '/* MONTH_SCOPED_YFIRLIT */'
+OLD_MARKER2 = '/* MONTH_SCOPED_YFIRLIT_V3 */'
 
 if not os.path.exists(HTML):
     print('Dashboard not found, skipping')
@@ -22,7 +23,7 @@ with open(HTML, 'r', encoding='utf-8') as f:
     src = f.read()
 
 if MARKER in src:
-    print('Month-scoped Yfirlit V2 already injected, nothing to do')
+    print('Month-scoped Yfirlit V4 already injected, nothing to do')
     sys.exit(0)
 
 # Remove old V1 injection if present
@@ -35,6 +36,14 @@ if OLD_MARKER in src:
         close_tag = src.rfind('</script>')
         src = src[:old_start] + src[close_tag:]
         print('Removed old V1 injection')
+
+# Remove V3 injection if present
+if OLD_MARKER2 in src:
+    v3_start = src.rfind('\n// /* MONTH_SCOPED_YFIRLIT_V3 */')
+    if v3_start >= 0:
+        close_tag = src.rfind('</script>')
+        src = src[:v3_start] + src[close_tag:]
+        print('Removed old V3 injection')
 
 inject_point = src.rfind('</script>')
 if inject_point < 0:
@@ -108,10 +117,14 @@ JS_PATCH = """
 
     function heatColor(v,mn,mx) {
       var t = mx===mn ? 0.5 : (v-mn)/(mx-mn);
-      return 'rgb('+Math.round(240-t*218)+','+Math.round(253-t*152)+','+Math.round(244-t*192)+')';
+      var r,g,b;
+      if(t<=0.5){var s=t*2;r=Math.round(239+s*(234-239));g=Math.round(68+s*(179-68));b=Math.round(68+s*(8-68));}
+      else{var s=(t-0.5)*2;r=Math.round(234-s*(234-22));g=Math.round(179-s*(179-163));b=Math.round(8+s*(74-8));}
+      return 'rgb('+r+','+g+','+b+')';
     }
     function textColor(v,mn,mx) {
-      return ((mx===mn?0.5:(v-mn)/(mx-mn))>0.5)?'#fff':'#374151';
+      var t = mx===mn?0.5:(v-mn)/(mx-mn);
+      return (t>0.25&&t<0.75)?'#1a1a1a':'#fff';
     }
 
     // Highlight selected day column
