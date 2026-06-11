@@ -1,34 +1,5 @@
-
-📂 Reading report: /tmp/tmpkxyr2js0.xlsx
-  Date: 2026-06-10 00:00:00, Stores: 17, Products: 103
-
-📒 Loading master file...
-
-➕ Appending daily data...
-  ✓ Appended 17 store rows for 2026-06-10
-  ✓ Appended 103 product rows for 2026-06-10
-  ✓ Appended 684 store×product rows for 2026-06-10
-
-📅 Rebuilding monthly summaries...
-  ✓ Monthly stores summary rebuilt (2 months)
-  ✓ Monthly products summary rebuilt (2 months)
-
-✅ Master file saved: /home/runner/work/kronan-automation/kronan-automation/data/Krónan_Master_Skrá.xlsx
-  (marker path)
-✅ Dashboard data updated — 41 days, 22 stores, 142 products
-✅ Store×Product data patched — 25713 product-store-day combos
-[netlify] Deployed → https://kronan-dashboard.netlify.app
-  Folder has 2 entries
+  Folder has 1 entries
   Entry: [FolderMetadata] 'Processed'
-  Entry: [FileMetadata] '2026-06-10_Krónan söluskýrsla.xlsx'
-  -> Yielding file: 2026-06-10_Krónan söluskýrsla.xlsx
-
-→ Found: 2026-06-10_Krónan söluskýrsla.xlsx
-  Downloaded (50,018 bytes)
-  $ /opt/hostedtoolcache/Python/3.11.15/x64/bin/python /home/runner/work/kronan-automation/kronan-automation/scripts/kronan_master.py /tmp/tmpkxyr2js0.xlsx
-  $ /opt/hostedtoolcache/Python/3.11.15/x64/bin/python /home/runner/work/kronan-automation/kronan-automation/scripts/update_dashboard_data.py
-  $ /opt/hostedtoolcache/Python/3.11.15/x64/bin/python /home/runner/work/kronan-automation/kronan-automation/scripts/netlify_deploy.py
-  ✓ Moved → Processed/20260611_082951_2026-06-10_Krónan söluskýrsla.xlsx
-  ✅ Done: 2026-06-10_Krónan söluskýrsla.xlsx
-[output] processed=true
+No new reports found in Dropbox. Nothing to do.
+[output] processed=false
 ---EXIT:0---
