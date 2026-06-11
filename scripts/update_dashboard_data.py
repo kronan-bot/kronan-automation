@@ -27,18 +27,8 @@ if not os.path.exists(MASTER):
     print(f'âœ— Master file not found: {MASTER}')
     sys.exit(1)
 if not os.path.exists(DASHBOARD):
-    print('âš  Dashboard not found â€” downloading from Netlify CDNâ€¦')
-    try:
-        req = urllib.request.Request(NETLIFY_URL, headers={'Cache-Control': 'no-cache'})
-        with urllib.request.urlopen(req, timeout=30) as resp:
-            fresh = resp.read().decode('utf-8')
-        os.makedirs(os.path.dirname(DASHBOARD), exist_ok=True)
-        with open(DASHBOARD, 'w', encoding='utf-8') as f:
-            f.write(fresh)
-        print('âœ“ Dashboard downloaded from Netlify CDN')
-    except Exception as e:
-        print(f'âœ— Dashboard not found and download failed: {e}')
-        sys.exit(1)
+    print(f'âœ— Dashboard not found: {DASHBOARD}')
+    sys.exit(1)
 
 # â”€â”€ Self-healing: recover dashboard if core JS functions are missing â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 def _dashboard_healthy(path):
@@ -182,4 +172,73 @@ DATA_BLOCK = '\n'.join([
     "let currentDate = 'all';",
     "let mainChart, storeChart;",
     "const STORE_COLORS = ['#1d4ed8','#2563eb','#3b82f6','#60a5fa','#0ea5e9','#06b6d4','#0891b2','#0284c7','#7c3aed','#6d28d9','#8b5cf6','#a78bfa','#059669','#10b981','#34d399','#065f46','#d97706','#f59e0b','#fbbf24','#b45309','#dc2626','#ef4444'];",
-    "const STORE_COLOR_MAP = {'KrÃ³nan Granda':'#e63946','KrÃ³nan Flatahrauni':'#1d6fa4','KrÃ³nan BÃ­ldshÃ¶fÃ°a':'#2a9d8f','KrÃ³nan Selfossi':'#f4a261','KrÃ³nan MosfellsbÃ¦':'#8338ec','KrÃ³nan Skeifan 19':'#e9c46a','KrÃ³nan Fitjabraut':'#06d6a0','KrÃ³nan Vestmannaerjum':'#ef476f','KrÃ³nan Akrabraut':'#4895ef','KrÃ³nan NorÃ°urhellu':'#560bad','KrÃ³nan BorgartÃºn':'#f72585','KrÃ³nan Austurveri':'#4cc9f0','KrÃ³nan Grafarholti':'#80b918','KrÃ³nan HallveigarstÃ­g':'#fb8500','KrÃ³nan Akranesi':'#264653','KrÃ³nan Jafnaseli':'#43aa8b','KrÃ³nan ÃžorlÃ¡kshÃ¶fn':'#c9184a','KrÃ³nan Hvolsvelli':'#118ab2','KrÃ³nan VallakÃ³r':'#fff&#s2rÂt·,;6æâl:Ö²s¢r3fCcƒsRrÂt·,;6æâ8&,:bs¢r6#Sƒ3†BrÂt·,;6æâ·W&W—&’s¢r3S&#sƒ‚wÓ²"À¢§5÷7F÷&U÷F÷FÇ2…5Dõ$UõDõDÅ2’À¢§5÷&öE÷F÷FÇ2…$ôEõDõDÅ2’À¢§5öF–Ç’„D”Å’’À¢§5öF–Ç•÷G’„D”Å•õE’’À¢§5÷7F÷&W5ö'•öFFR…5Dõ$U5ô%•ôDDR’À¢§5÷7F÷&U÷&öGV7G2‡7F÷&U÷&öG2’À¢v6öç7BDDU2Òö&¦V7Bæ¶W—2„D”Å’’ç6÷'B‚“²rÂ26÷'FVBFFR'&’W6VBF‡&÷Vv†÷WBF†RT¥Ò ¤Ô$´U%õ5D%BÒrò¢µ$ôäåôDDõ5D%B¢òp¤Ô$´U%ôTäBÒrò¢µ$ôäåôDDôTäB¢òp ¢2)H)HbâF6‚F†RF6†&ö&B…DÔÂ)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H §v—F‚÷Vâ„D4„$ô$BÂw"rÂVæ6öF–æsÒwWFbÓ‚r’2c ¢‡FÖÂÒbç&VB‚ ¦æWuö&Æö6²ÒÔ$´U%õ5D%B²uÆâr²DDô$Äô4²²uÆâr²Ô$´U%ôTä@ ¢2)H)HF‚¢Ö&¶W'2&W6VçB(	B&WÆ6RöæÇ’F†R6öçFVçB&WGvVVâF†VÒ)H)H)H)H)H)H)H)H)H)H)H ¦Ö&¶W%÷2Ò‡FÖÂæf–æB„Ô$´U%õ5D%B¦Ö&¶W%öRÒ‡FÖÂæf–æB„Ô$´U%ôTäB¦–bÖ&¶W%÷2ãÒæBÖ&¶W%öRâÖ&¶W%÷3 ¢‡FÖÂÒ‡FÖÅ³¦Ö&¶W%÷5Ò²æWuö&Æö6²²‡FÖÅ¶Ö&¶W%öR²ÆVâ„Ô$´U%ôTäB“¥Ð¢&–çB†br†Ö&¶W"F‚’r ¦VÇ6S ¢2)H)HF‚#¢æòÖ&¶W'2(	Bf–æBFF6V7F–öâ&÷VæF&–W2&V6—6VÇ’)H)H)H)H)H)H)H)H)H)H)H ¢25D%C¢V&Æ–W7BFF6öç7BFV6Æ&F–öà¢FF÷7F'BÒÆVâ†‡FÖÂ¢f÷"æÖR–â‚u5Dõ$UõDõDÅ2rÂu$ôEõDõDÅ2rÂtD”Å’rÂtD”Å•õE’rÂu5Dõ$U5ô%•ôDDRrÂu5Dõ$Uõ$ôE2r“ ¢Ò‡FÖÂæf–æB†bv6öç7B¶æÖWÒr¢–bÃÒÂFF÷7F'C ¢FF÷7F'BÒ  ¢–bFF÷7F'BÓÒÆVâ†‡FÖÂ“ ¢2æòFF6öç7G2BÆÂ(	B–æ¦V7B–ÖÖVF–FVÇ’&Vf÷&R'V–ÆEF'2‚’6ÆÀ¢'Ò‡FÖÂæf–æB‚v'V–ÆEF'2‚“²r¢–b'Â ¢÷2Ò‡FÖÂç&f–æB‚sÂ÷67&—Câr¢–b÷2Â ¢&–çB‚~)Ér6÷VÆBæ÷BF6‚F6†&ö&B(	Bæò–æ¦V7F–öâö–çBf÷VæBr¢7—2æW†—Bƒ¢‡FÖÂÒ‡FÖÅ³§÷5Ò²æWuö&Æö6²²uÆâr²‡FÖÅ·÷3¥Ð¢VÇ6S ¢‡FÖÂÒ‡FÖÅ³¦'Ò²æWuö&Æö6²²uÆåÆâr²‡FÖÅ¶'¥Ð¢&–çB†br†–æ¦V7BF‚’r¢VÇ6S ¢2TäC¢f—'7B¥2gVæ7F–öâFV6Æ&F–öâgFW"F†RFF6öç7G0¢2†gVæ7F–öâFVg26öÖRgFW"FF–âF†R÷&–v–æÂ…DÔÂ¢få÷÷2Ò‡FÖÂæf–æB‚uÆægVæ7F–öârÂFF÷7F'B¢–bfå÷÷2ãÒ ¢2¶VWg&öÒfå÷÷2³6òvRFöâwB7vÆÆ÷rF†RÆVF–æræWvÆ–æP¢‡FÖÂÒ‡FÖÅ³¦FF÷7F'EÒ²æWuö&Æö6²²uÆåÆâr²‡FÖÅ¶få÷÷2²¥Ð¢&–çB†br†gVæ7F–öâÖ&÷VæF'’F‚’r¢VÇ6S ¢2Æ7B&W6÷'C¢7WBFò'V–ÆEF'2‚’6ÆÂ†öÆB&V†f–÷"¢'Ò‡FÖÂæf–æB‚v'V–ÆEF'2‚“²rÂFF÷7F'B¢–b'Â ¢&–çB‚~)Ér6÷VÆBæ÷BF6‚F6†&ö&B(	Bæò–æ¦V7F–öâö–çBf÷VæBr¢7—2æW†—Bƒ¢‡FÖÂÒ‡FÖÅ³¦FF÷7F'EÒ²æWuö&Æö6²²uÆåÆâr²‡FÖÅ¶'¥Ð¢&–çB†br†'V–ÆEF'2Öæ6†÷"F‚’r §&–çB†b~)ÈRF6†&ö&BFFWFFVB(	B¶ÆVâ†FFW2—ÒF—2Â¶ÆVâ…5Dõ$UõDõDÅ2—Ò7F÷&W2Â¶ÆVâ…$ôEõDõDÅ2—Ò&öGV7G2r §v—F‚÷Vâ„D4„$ô$BÂwrrÂVæ6öF–æsÒwWFbÓ‚r’2c ¢bçw&—FR†‡FÖÂ §&–çB†b~)ÈR7F÷&\9u&öGV7BFFF6†VB(	B·7VÒ†ÆVâ‡b’f÷"Gb–â7F÷&U÷&öG2çfÇVW2‚’f÷"b–âGbçfÇVW2‚’—Ò&öGV7B×7F÷&RÖF’6öÖ&÷2r
+    "const STORE_COLOR_MAP = {'KrÃ³nan Granda':'#e63946','KrÃ³nan Flatahrauni':'#1d6fa4','KrÃ³nan BÃ­ldshÃ¶fÃ°a':'#2a9d8f','KrÃ³nan Selfossi':'#f4a261','KrÃ³nan MosfellsbÃ¦':'#8338ec','KrÃ³nan Skeifan 19':'#e9c46a','KrÃ³nan Fitjabraut':'#06d6a0','KrÃ³nan Vestmannaeyjum':'#ef476f','KrÃ³nan Akrabraut':'#4895ef','KrÃ³nan NorÃ°urhellu':'#560bad','KrÃ³nan BorgartÃºn':'#f72585','KrÃ³nan Austurveri':'#4cc9f0','KrÃ³nan Grafarholti':'#80b918','KrÃ³nan HallveigarstÃ­g':'#fb8500','KrÃ³nan Akranesi':'#264653','KrÃ³nan Jafnaseli':'#43aa8b','KrÃ³nan ÃžorlÃ¡ksN[¶fž':'#c9184a','KrÃ³nan Hvolsvelli':'#118ab2','KrÃ³nan VallakÃ³r':'#ffb703','KrÃ³nan VÃ­k':'#6d6875','KrÃ³nan ÃrbÃ¦':'#b5838d','KrÃ³nan Akureyri':'#52b788'};",
+    js_store_totals(STORE_TOTALS),
+    js_prod_totals(PROD_TOTALS),
+    js_daily(DAILY),
+    js_daily_qty(DAILY_QTY),
+    js_stores_by_date(STORES_BY_DATE),
+    js_store_products(store_prods),
+    'const DATES = Object.keys(DAILY).sort();',  # sorted date array used throughout the UI
+])
+
+MARKER_START = '/* KRONAN_DATA_START */'
+MARKER_END   = '/* KRONAN_DATA_END */'
+
+# â”€â”€ 6. Patch the dashboard HTML â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+with open(DASHBOARD, 'r', encoding='utf-8') as f:
+    html = f.read()
+
+new_block = MARKER_START + '\n' + DATA_BLOCK + '\n' + MARKER_END
+
+# â”€â”€ Path A: markers present â€” replace only the content between them â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+marker_s = html.find(MARKER_START)
+marker_e = html.find(MARKER_END)
+if marker_s >= 0 and marker_e > marker_s:
+    html = html[:marker_s] + new_block + html[marker_e + len(MARKER_END):]
+    print(f'  (marker path)')
+
+else:
+    # â”€â”€ Path B: no markers â€” find data section boundaries precisely â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # START: earliest data const declaration
+    data_start = len(html)
+    for name in ('STORE_TOTALS', 'PROD_TOTALS', 'DAILY', 'DAILY_QTY', 'STORES_BY_DATE', 'STORE_PRODS'):
+        p = html.find(f'const {name}')
+        if 0 <= p < data_start:
+            data_start = p
+
+    if data_start == len(html):
+        # No data consts at all â€” inject immediately before buildTabs() call
+        bp = html.find('buildTabs();')
+        if bp < 0:
+            pos = html.rfind('</script>')
+            if pos < 0:
+                print('âœ— Could not patch dashboard â€” no injection point found')
+                sys.exit(1)
+            html = html[:pos] + new_block + '\n' + html[pos:]
+        else:
+            html = html[:bp] + new_block + '\n\n' + html[bp:]
+        print(f'  (inject path)')
+    else:
+        # END: first JS function declaration after the data consts
+        # (function defs come after data in the original HTML)
+        fn_pos = html.find('\nfunction ', data_start)
+        if fn_pos >= 0:
+            # Keep from fn_pos+1 so we don't swallow the leading newline
+            html = html[:data_start] + new_block + '\n\n' + html[fn_pos + 1:]
+            print(f'  (function-boundary path)')
+        else:
+            # Last resort: cut to buildTabs() call (old behavior)
+            bp = html.find('buildTabs();', data_start)
+            if bp < 0:
+                print('âœ— Could not patch dashboard â€” no injection point found')
+                sys.exit(1)
+            html = html[:data_start] + new_block + '\n\n' + html[bp:]
+            print(f'  (buildTabs-anchor path)')
+
+print(f'âœ… Dashboard data updated â€” {len(dates)} days, {len(STORE_TOTALS)} stores, {len(PROD_TOTALS)} products')
+
+with open(DASHBOARD, 'w', encoding='utf-8') as f:
+    f.write(html)
+
+print(f'âœ… StoreÃ—Product data patched â€” {sum(len(v) for dv in store_prods.values() for v in dv.values())} product-store-day combos')
