@@ -625,8 +625,8 @@ function toggleMagnSort() {
 }
 
 function buildHeatmap() {
-  // Show all stores (sorted by total sale)
-  const storeNames = STORE_TOTALS.map(([n])=>n);
+  // Collect all store names (top 12 by total)
+  const storeNames = STORE_TOTALS.slice(0,12).map(([n])=>n);
   // For each store, get sale per day
   const dayLabels = DATES.map(d => {
     const [y,m,day] = d.split('-').map(Number);
