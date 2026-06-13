@@ -128,6 +128,83 @@ if ws5:
         store_prods[dk][store][prod][1] += int(qty or 0)
         if pnr: store_prods[dk][store][prod][2] = str(pnr)
 
+# ── 4b. Merge existing dashboard dates (preserve history not in Excel) ────────
+def _extract_json_const(html, const_name):
+    """Find `const NAME = {...};` in html and return it parsed as JSON (or None)."""
+    m = re.search(r'const ' + re.escape(const_name) + r'\s*=\s*', html)
+    if not m:
+        return None
+    pos   = m.end()
+    depth = 0
+    in_str = False
+    esc    = False
+    start  = None
+    for i, ch in enumerate(html[pos:], pos):
+        if esc:                    esc = False;  continue
+        if ch == '\\' and in_str:  esc = True;   continue
+        if ch == '"':              in_str = not in_str; continue
+        if in_str:                 continue
+        if ch in '{[':
+            if start is None: start = i
+            depth += 1
+        elif ch in '}]':
+            depth -= 1
+            if depth == 0 and start is not None:
+                try:    return json.loads(html[start:i+1])
+                except: return None
+    return None
+
+try:
+    with open(DASHBOARD, 'r', encoding='utf-8') as _f:
+        _ex_html = _f.read()
+    _ex_sbd = _extract_json_const(_ex_html, 'STORES_BY_DATE') or {}
+    _ex_sp  = _extract_json_const(_ex_html, 'STORE_PRODS')    or {}
+    _ex_dq  = _extract_json_const(_ex_html, 'DAILY_QTY')      or {}
+    _excel_dates = set(stores_by_date.keys())
+    _old_dates   = sorted(set(_ex_sbd.keys()) - _excel_dates)
+    if _old_dates:
+        print(f'  ↩ Merging {len(_old_dates)} historic date(s): {_old_dates[0]} → {_old_dates[-1]}')
+        for dk in _old_dates:
+            rows = _ex_sbd.get(dk, [])
+            stores_by_date[dk] = [{'store': r['store'], 'sale': r['sale'], 'qty': r['qty']} for r in rows]
+            daily_sale[dk] = sum(r['sale'] for r in rows)
+            daily_qty[dk]  = _ex_dq.get(dk, sum(r['qty'] for r in rows))
+            for r in rows:
+                store_sale[r['store']] += r['sale']
+                store_qty[r['store']]  += r['qty']
+            for store, prods_list in _ex_sp.get(dk, {}).items():
+                for prod_arr in prods_list:
+                    pnr_v  = str(prod_arr[0])
+                    pname  = prod_arr[1]
+                    sale_v = prod_arr[2]
+                    qty_v  = int(prod_arr[3])
+                    store_prods[dk][store][pname][0] += sale_v
+                    store_prods[dk][store][pname][1] += qty_v
+                    if pnr_v and pnr_v not in ('None', ''):
+                        store_prods[dk][store][pname][2] = pnr_v
+                    prod_sale[pname] += sale_v
+                    prod_qty[pname]  += qty_v
+    else:
+        print('  ✓ No historic dates to merge (dashboard ≤ Excel range)')
+except FileNotFoundError:
+    print('  ℹ Dashboard not found locally — skipping merge (first run)')
+except Exception as _e:
+    print(f'  ⚠ Merge error (proceeding with Excel-only data): {_e}')
+
+# Recompute all derived variables from the (now-merged) accumulators
+dates          = sorted(daily_sale.keys())
+DAILY          = {d: round(daily_sale[d]) for d in dates}
+DAILY_QTY      = {d: daily_qty[d] for d in dates}
+STORES_BY_DATE = {d: sorted(stores_by_date[d], key=lambda x: -x['sale']) for d in dates}
+STORE_TOTALS   = sorted(
+    [[s, {'sale': round(store_sale[s]), 'qty': store_qty[s]}] for s in store_sale],
+    key=lambda x: -x[1]['sale']
+)
+PROD_TOTALS    = sorted(
+    [[p, {'sale': round(prod_sale[p]), 'qty': prod_qty[p]}] for p in prod_sale],
+    key=lambda x: -x[1]['sale']
+)
+
 # ── 5. Build JS data block ───────────────────────────────────────────────────
 def js_store_totals(data):
     parts = [f'["{n}",{{sale:{v["sale"]},qty:{v["qty"]}}}]' for n,v in data]
