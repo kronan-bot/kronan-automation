@@ -127,7 +127,7 @@ JS_PATCH = """
     });
     var storeNames = Object.keys(mTotals)
       .sort(function(a,b){ return mTotals[b]-mTotals[a]; })
-      .slice(0,12);
+      ;
 
     var dayLabels = mDates.map(function(d) {
       var p = d.split('-').map(Number);
