@@ -1,0 +1,46 @@
+name: Recover June 12 Report
+on:
+  workflow_dispatch:
+jobs:
+  recover:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: pip install dropbox
+      - name: Move June 12 back from Processed
+        env:
+          DROPBOX_REFRESH_TOKEN: ${{ secrets.DROPBOX_REFRESH_TOKEN }}
+          DROPBOX_APP_KEY: ${{ secrets.DROPBOX_APP_KEY }}
+          DROPBOX_APP_SECRET: ${{ secrets.DROPBOX_APP_SECRET }}
+        run: |
+          python - <<'PY'
+          import os, dropbox
+          from dropbox.exceptions import ApiError
+          dbx = dropbox.Dropbox(
+              oauth2_refresh_token=os.environ['DROPBOX_REFRESH_TOKEN'],
+              app_key=os.environ['DROPBOX_APP_KEY'],
+              app_secret=os.environ['DROPBOX_APP_SECRET'],
+          )
+          res=None
+          for f in ['/Krónan Reports/Processed','/Kronan Reports/Processed']:
+              try:
+                  res=dbx.files_list_folder(f); break
+              except ApiError:
+                  pass
+          if res is None:
+              print('Could not open Processed folder'); raise SystemExit(1)
+          entries=list(res.entries)
+          while res.has_more:
+              res=dbx.files_list_folder_continue(res.cursor); entries+=res.entries
+          target=next((e for e in entries if '2026-06-12' in e.name), None)
+          if target is None:
+              print('June 12 NOT found in Processed. Files present:')
+              for e in entries: print('  ', e.name)
+              raise SystemExit(1)
+          dest='/Krónan Reports/'+target.name
+          dbx.files_move_v2(target.path_display, dest)
+          print('MOVED:', target.path_display, '->', dest)
+          PY
