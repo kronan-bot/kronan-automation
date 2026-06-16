@@ -10,7 +10,7 @@ jobs:
         with:
           python-version: '3.11'
       - run: pip install dropbox
-      - name: Move June 12 back from Processed
+      - name: Move June 12 back from Processed clean name
         env:
           DROPBOX_REFRESH_TOKEN: ${{ secrets.DROPBOX_REFRESH_TOKEN }}
           DROPBOX_APP_KEY: ${{ secrets.DROPBOX_APP_KEY }}
@@ -24,23 +24,14 @@ jobs:
               app_key=os.environ['DROPBOX_APP_KEY'],
               app_secret=os.environ['DROPBOX_APP_SECRET'],
           )
-          res=None
-          for f in ['/Krónan Reports/Processed','/Kronan Reports/Processed']:
-              try:
-                  res=dbx.files_list_folder(f); break
-              except ApiError:
-                  pass
-          if res is None:
-              print('Could not open Processed folder'); raise SystemExit(1)
+          res=dbx.files_list_folder('/Krónan Reports/Processed')
           entries=list(res.entries)
           while res.has_more:
               res=dbx.files_list_folder_continue(res.cursor); entries+=res.entries
-          target=next((e for e in entries if '2026-06-12' in e.name), None)
+          target=next((e for e in entries if '2026-06-12' in e.name and e.name.endswith('.xlsx')), None)
           if target is None:
-              print('June 12 NOT found in Processed. Files present:')
-              for e in entries: print('  ', e.name)
-              raise SystemExit(1)
-          dest='/Krónan Reports/'+target.name
-          dbx.files_move_v2(target.path_display, dest)
+              print('June 12 NOT found'); raise SystemExit(1)
+          dest='/Krónan Reports/2026-06-12_Krónan söluskýrsla.xlsx'
+          dbx.files_move_v2(target.path_display, dest, autorename=True)
           print('MOVED:', target.path_display, '->', dest)
           PY
