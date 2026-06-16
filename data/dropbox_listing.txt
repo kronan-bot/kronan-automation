@@ -1,10 +1,11 @@
 Connected to Dropbox OK
 Account: Ari Alexander Gudjonsson <ari@tokyo.is>
-Folder '/Krónan Reports': 1 entries, has_more=False
+Folder '/Krónan Reports': 2 entries, has_more=False
   [FolderMetadata] '/Krónan Reports/Processed'
-Folder '/Kronan Reports': ERROR ApiError('90845d704a6440f7a2ff50126a1ee956', ListFolderError('path', LookupError('not_found', None)))
-Folder '/kronan reports': ERROR ApiError('af27eb589961411da2c416fe6a1ee956', ListFolderError('path', LookupError('not_found', None)))
-Root listing: 65 entries
+  [FileMetadata] '/Krónan Reports/KronanSales.xlsx'
+Folder '/Kronan Reports': ERROR ApiError('d1e67f2178e7449faddc4da36a3131ce', ListFolderError('path', LookupError('not_found', None)))
+Folder '/kronan reports': ERROR ApiError('6eaa277af1d64695b249a4d06a3131ce', ListFolderError('path', LookupError('not_found', None)))
+Root listing: 68 entries
   [FolderMetadata] '/New poke ideas'
   [FolderMetadata] '/บริษัท Krás - ปลอกบรรจุภัณฑ์อาหาร'
   [FolderMetadata] '/Marketing team'
@@ -44,6 +45,7 @@ Root listing: 65 entries
   [FolderMetadata] '/Krónan_Scripts'
   [FolderMetadata] '/kronan-automation'
   [FolderMetadata] '/HEF'
+  [FolderMetadata] '/.claude'
   [FileMetadata] '/Yakitori_SOP_Step_by_Step.xlsx'
   [FileMetadata] '/Yakitori_Sauce_5L_10L_Finished.xlsx'
   [FileMetadata] '/Yakitori_Sauce_Optimized new 18.12.25'
@@ -70,3 +72,5 @@ Root listing: 65 entries
   [FileMetadata] '/Deploy_Dashboard.command'
   [FileMetadata] '/kronan_launch.sh'
   [FileMetadata] '/Krónan_Master_Skrá_seed.xlsx'
+  [FileMetadata] '/Krónan_Dashboard_clean.html'
+  [FileMetadata] '/HACCP Onigiri PDF.pdf'
