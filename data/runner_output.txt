@@ -1,5 +1,5 @@
 
-📂 Reading report: /tmp/tmpovl1xwq_.xlsx
+📂 Reading report: /tmp/tmplb13ewet.xlsx
   ⚠ Sheet 'Verslanir' not found, using first sheet: KronanSales
 Traceback (most recent call last):
   File "/home/runner/work/kronan-automation/kronan-automation/scripts/kronan_master.py", line 370, in <module>
@@ -11,44 +11,14 @@ Traceback (most recent call last):
     store_rows[store][0] += sale; store_rows[store][1] += int(qty or 0)
     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 TypeError: unsupported operand type(s) for +=: 'float' and 'str'
-
-📂 Reading report: /tmp/tmpv90bmbt7.xlsx
-  Date: 2026-06-12 00:00:00, Stores: 20, Products: 103
-
-📒 Loading master file...
-
-➕ Appending daily data...
-  ✓ Appended 20 store rows for 2026-06-12
-  ✓ Appended 103 product rows for 2026-06-12
-  ✓ Appended 747 store×product rows for 2026-06-12
-
-📅 Rebuilding monthly summaries...
-  ✓ Monthly stores summary rebuilt (2 months)
-  ✓ Monthly products summary rebuilt (2 months)
-
-✅ Master file saved: /home/runner/work/kronan-automation/kronan-automation/data/Krónan_Master_Skrá.xlsx
-  (marker path)
-✅ Dashboard data updated — 46 days, 23 stores, 142 products
-✅ Store×Product data patched — 29125 product-store-day combos
-[netlify] Deployed → https://kronan-dashboard.netlify.app
-  Folder has 3 entries
+  Folder has 2 entries
   Entry: [FolderMetadata] 'Processed'
   Entry: [FileMetadata] 'KronanSales.xlsx'
   -> Yielding file: KronanSales.xlsx
-  Entry: [FileMetadata] '2026-06-12_Krónan söluskýrsla.xlsx'
-  -> Yielding file: 2026-06-12_Krónan söluskýrsla.xlsx
 
 → Found: KronanSales.xlsx
   Downloaded (149,461 bytes)
-  $ /opt/hostedtoolcache/Python/3.11.15/x64/bin/python /home/runner/work/kronan-automation/kronan-automation/scripts/kronan_master.py /tmp/tmpovl1xwq_.xlsx
+  $ /opt/hostedtoolcache/Python/3.11.15/x64/bin/python /home/runner/work/kronan-automation/kronan-automation/scripts/kronan_master.py /tmp/tmplb13ewet.xlsx
   ✗ kronan_master.py failed (exit 1)
-
-→ Found: 2026-06-12_Krónan söluskýrsla.xlsx
-  Downloaded (54,555 bytes)
-  $ /opt/hostedtoolcache/Python/3.11.15/x64/bin/python /home/runner/work/kronan-automation/kronan-automation/scripts/kronan_master.py /tmp/tmpv90bmbt7.xlsx
-  $ /opt/hostedtoolcache/Python/3.11.15/x64/bin/python /home/runner/work/kronan-automation/kronan-automation/scripts/update_dashboard_data.py
-  $ /opt/hostedtoolcache/Python/3.11.15/x64/bin/python /home/runner/work/kronan-automation/kronan-automation/scripts/netlify_deploy.py
-  ✓ Moved → Processed/20260616_115008_2026-06-12_Krónan söluskýrsla.xlsx
-  ✅ Done: 2026-06-12_Krónan söluskýrsla.xlsx
-[output] processed=true
+[output] processed=false
 ---EXIT:0---
