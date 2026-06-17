@@ -1,28 +1,4 @@
-
-📂 Reading report: /tmp/tmpix7oj5uq.xlsx
-  ⚠ Sheet 'Verslanir' not found, using first sheet: KronanSales
-  Date: Tokyo Sushi gyoza kjúklinga 6s, Stores: 1, Products: 0
-
-📒 Loading master file...
-
-➕ Appending daily data...
-  ✓ Appended 1 store rows for Tokyo Sushi gyoza kjúklinga 6s
-  ✓ Appended 0 product rows for Tokyo Sushi gyoza kjúklinga 6s
-  ✓ Appended 1 store×product rows for Tokyo Sushi gyoza kjúklinga 6s
-
-📅 Rebuilding monthly summaries...
-  ✓ Monthly stores summary rebuilt (2 months)
-  ✓ Monthly products summary rebuilt (2 months)
-
-✅ Master file saved: /home/runner/work/kronan-automation/kronan-automation/data/Krónan_Master_Skrá.xlsx
-Traceback (most recent call last):
-  File "/home/runner/work/kronan-automation/kronan-automation/scripts/update_dashboard_data.py", line 181, in <module>
-    js_store_products(store_prods),
-    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/kronan-automation/kronan-automation/scripts/update_dashboard_data.py", line 162, in js_store_products
-    pname = prod.replace('Tokyo Sushi ','').replace('"','\\"')
-            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-TypeError: 'str' object cannot be interpreted as an integer
+SyntaxError: Non-UTF-8 code starting with '\xee' in file /home/runner/work/kronan-automation/kronan-automation/scripts/kronan_master.py on line 188, but no encoding declared; see https://peps.python.org/pep-0263/ for details
   Folder has 2 entries
   Entry: [FolderMetadata] 'Processed'
   Entry: [FileMetadata] 'KronanSales.xlsx'
@@ -30,8 +6,7 @@ TypeError: 'str' object cannot be interpreted as an integer
 
 → Found: KronanSales.xlsx
   Downloaded (149,461 bytes)
-  $ /opt/hostedtoolcache/Python/3.11.15/x64/bin/python /home/runner/work/kronan-automation/kronan-automation/scripts/kronan_master.py /tmp/tmpix7oj5uq.xlsx
-  $ /opt/hostedtoolcache/Python/3.11.15/x64/bin/python /home/runner/work/kronan-automation/kronan-automation/scripts/update_dashboard_data.py
-  ✗ update_dashboard_data.py failed (exit 1)
+  $ /opt/hostedtoolcache/Python/3.11.15/x64/bin/python /home/runner/work/kronan-automation/kronan-automation/scripts/kronan_master.py /tmp/tmpc0bx0puf.xlsx
+  ✗ kronan_master.py failed (exit 1)
 [output] processed=false
 ---EXIT:0---
