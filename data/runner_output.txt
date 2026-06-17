@@ -1,4 +1,31 @@
-SyntaxError: Non-UTF-8 code starting with '\xee' in file /home/runner/work/kronan-automation/kronan-automation/scripts/kronan_master.py on line 188, but no encoding declared; see https://peps.python.org/pep-0263/ for details
+
+📂 Reading report: /tmp/tmpopui1krl.xlsx
+ ⚠ Sheet 'Verslanir' not found, using first sheet: KronanSales
+ Sheet headers (row 1): ['Product Name', 'Barcode', 'Vendor No', 'Vendor Name', 'Vendor Product No', 'Sales Date', 'Time', 'Date Time', 'EANNo', 'Store Name', 'Quantity', 'Net Amount']
+ First data row  (row 2): ['Tokyo Sushi gyoza kjúklinga 6s', '5694230605958', '6707100920', 'Tokyo Veitingar ehf', 'R1453', datetime.datetime(2026, 6, 14, 0, 0), '1754-01-01 15:53:20', 'Jun 14 2026 15:53:20:773', '5699000147577', 'Krónan Fitjabraut', 1.0, 1072.07]
+ Date found via row-scan (col 5): 2026-06-14 00:00:00
+ Date: 2026-06-14 00:00:00, Stores: 1, Products: 0
+
+📒 Loading master file...
+
+🧹 Checking master for corrupted rows...
+   Cleaning 1 bad row(s) from Dagleg - Verslanir: ['Tokyo Sushi gyoza kjúklinga 6s']
+   Cleaning 1 bad row(s) from Dagleg - Vara×Verslun: ['Tokyo Sushi gyoza kjúklinga 6s']
+
+➕ Appending daily data...
+ ⚠ 2026-06-14 already in Dagleg - Verslanir, skipping.
+ ⚠ 2026-06-14 already in Dagleg - Vörur, skipping.
+ ⚠ 2026-06-14 already in Dagleg - Vara×Verslun, skipping.
+
+📅 Rebuilding monthly summaries...
+ ✓ Monthly stores summary rebuilt (2 months)
+ ✓ Monthly products summary rebuilt (2 months)
+
+✅ Master file saved: /home/runner/work/kronan-automation/kronan-automation/data/Krónan_Master_Skrá.xlsx
+  (marker path)
+✅ Dashboard data updated — 47 days, 23 stores, 142 products
+✅ Store×Product data patched — 29841 product-store-day combos
+[netlify] Deployed → https://kronan-dashboard.netlify.app
   Folder has 2 entries
   Entry: [FolderMetadata] 'Processed'
   Entry: [FileMetadata] 'KronanSales.xlsx'
@@ -6,7 +33,10 @@ SyntaxError: Non-UTF-8 code starting with '\xee' in file /home/runner/work/krona
 
 → Found: KronanSales.xlsx
   Downloaded (149,461 bytes)
-  $ /opt/hostedtoolcache/Python/3.11.15/x64/bin/python /home/runner/work/kronan-automation/kronan-automation/scripts/kronan_master.py /tmp/tmpci_ajui3.xlsx
-  ✗ kronan_master.py failed (exit 1)
-[output] processed=false
+  $ /opt/hostedtoolcache/Python/3.11.15/x64/bin/python /home/runner/work/kronan-automation/kronan-automation/scripts/kronan_master.py /tmp/tmpopui1krl.xlsx
+  $ /opt/hostedtoolcache/Python/3.11.15/x64/bin/python /home/runner/work/kronan-automation/kronan-automation/scripts/update_dashboard_data.py
+  $ /opt/hostedtoolcache/Python/3.11.15/x64/bin/python /home/runner/work/kronan-automation/kronan-automation/scripts/netlify_deploy.py
+  ✓ Moved → Processed/20260617_124239_KronanSales.xlsx
+  ✅ Done: KronanSales.xlsx
+[output] processed=true
 ---EXIT:0---
