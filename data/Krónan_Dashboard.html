@@ -1405,7 +1405,7 @@ renderForecast();
 renderAccuracy();
 
 
-// /* MONTH_SCOPED_YFIRLIT_V5 */
+// /* MONTH_SCOPED_YFIRLIT_V6 */
 (function() {
 
   function monthDates() {
@@ -1423,11 +1423,54 @@ renderAccuracy();
     return MONTH_FULL_IS[parseInt(p[1],10)] + ' ' + p[0];
   }
 
+  // ── 0. getStoresForDate: month-aggregated when currentDate==='all' & currentMonth ──
+  var _baseGetStores = getStoresForDate;
+  window.getStoresForDate = function(d) {
+    if (d === 'all' && currentMonth) {
+      var mDates = DATES.filter(function(date) { return date.indexOf(currentMonth) === 0; });
+      var agg = {};
+      mDates.forEach(function(date) {
+        (STORES_BY_DATE[date] || []).forEach(function(r) {
+          if (!agg[r.store]) agg[r.store] = {sale: 0, qty: 0};
+          agg[r.store].sale += r.sale;
+          agg[r.store].qty  += r.qty;
+        });
+      });
+      return Object.keys(agg).map(function(name) {
+        return [name, agg[name]];
+      }).sort(function(a, b) { return b[1].sale - a[1].sale; });
+    }
+    return _baseGetStores(d);
+  };
+
+  // ── 0b. updateDayTabs: after rebuilding day tabs, default to month-total view ──
+  var _baseUpdateDayTabs = updateDayTabs;
+  window.updateDayTabs = function(m) {
+    _baseUpdateDayTabs(m);
+    // Default selection after tab rebuild is 'all' so month-total view shows immediately
+    currentDate = 'all';
+    // Activate the 'all' tab button visually
+    var allBtn = document.querySelector('#date-tabs .tab-all');
+    if (allBtn) {
+      document.querySelectorAll('.tab,.tab-all').forEach(function(b){b.classList.remove('active');});
+      allBtn.classList.add('active');
+    }
+  };
+
   // ── 1. KPI override + month-scoped date dropdown ──────────────────────────
   var _baseR = render;
   window.render = function monthScopedRender() {
     rebuildStoreSaleDropdown();
     _baseR();
+    // Fix hardcoded chart title
+    var chartTitle = document.getElementById('main-chart-title');
+    if (chartTitle && currentDate === 'all') {
+      if (currentMonth) {
+        chartTitle.textContent = 'Dagleg sala — ' + monthTitle(currentMonth);
+      } else {
+        chartTitle.textContent = 'Dagleg sala — Allt tímabilið';
+      }
+    }
     if (currentDate !== 'all' || !currentMonth) return;
     var mDates = monthDates();
     if (!mDates.length) return;
@@ -1476,7 +1519,7 @@ renderAccuracy();
     var mDates = monthDates();
     if (!mDates.length) { _baseHeat(); return; }
 
-    // Top-12 stores ranked by month sales
+    // Top stores ranked by month sales
     var mTotals = {};
     mDates.forEach(function(d) {
       (STORES_BY_DATE[d]||[]).forEach(function(r) {
@@ -1484,8 +1527,7 @@ renderAccuracy();
       });
     });
     var storeNames = Object.keys(mTotals)
-      .sort(function(a,b){ return mTotals[b]-mTotals[a]; })
-      ;
+      .sort(function(a,b){ return mTotals[b]-mTotals[a]; });
 
     var dayLabels = mDates.map(function(d) {
       var p = d.split('-').map(Number);
@@ -1512,7 +1554,6 @@ renderAccuracy();
       return (t>0.25&&t<0.75)?'#1a1a1a':'#fff';
     }
 
-    // Highlight selected day column
     var selIdx = (currentDate !== 'all') ? mDates.indexOf(currentDate) : -1;
 
     var html = '<table class="heatmap"><thead><tr><th class="store-col">Verslun</th>';
@@ -1562,7 +1603,6 @@ renderAccuracy();
       });
     });
 
-    // Dynamic label: day, month or whole period — never hardcoded
     var lbl = document.getElementById('sp-date-label');
     if (lbl) {
       if (currentDate !== 'all') lbl.textContent = '— ' + dayLabel(currentDate);
@@ -1727,6 +1767,15 @@ renderAccuracy();
     var countEl = document.getElementById('store-sale-count');
     if (countEl) countEl.textContent = storeList.length + ' verslanir, ' + totalRows + ' vörur';
   };
+
+  // ── 5. Initial render: apply month-total view on page load ────────────────
+  currentDate = 'all';
+  var allBtn = document.querySelector('#date-tabs .tab-all');
+  if (allBtn) {
+    document.querySelectorAll('.tab,.tab-all').forEach(function(b){b.classList.remove('active');});
+    allBtn.classList.add('active');
+  }
+  render();
 
 })();
 </script>
