@@ -1,4 +1,4 @@
-name: KrÃÂ³nan Daily Report
+name: KrÃ³nan Daily Report
 
 on:
   schedule:
@@ -58,7 +58,7 @@ jobs:
 
       - name: Rebuild dashboard from master
         run: |
-          MSIZE=$(wc -c < "data/KrÃÂ³nan_Master_SkrÃÂ¡.xlsx" 2>/dev/null || echo 0)
+          MSIZE=$(wc -c < "data/KrÃ³nan_Master_SkrÃ¡.xlsx" 2>/dev/null || echo 0)
           if [ "$MSIZE" -gt 100000 ]; then
             KRONAN_BASE=data python scripts/update_dashboard_data.py && echo "Rebuilt OK" || echo "Rebuild failed"
           fi
@@ -79,7 +79,7 @@ jobs:
       - name: Commit results
         if: always()
         run: |
-          git config user.name "KrÃÂ³nan Bot"
+          git config user.name "KrÃ³nan Bot"
           git config user.email "kronan-bot@tokyo.is"
           git add data/
           git diff --staged --quiet || git commit -m "run: $(date -u '+%Y-%m-%d %H:%M UTC') processed=${{ steps.runner.outputs.processed }}"
