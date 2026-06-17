@@ -10,7 +10,10 @@ from openpyxl import Workbook, load_workbook
 from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
 from collections import defaultdict
 import sys, os
-from openpyxl.cell.cell import MergedCel
+try:
+    from openpyxl.cell.cell import MergedCell
+except ImportError:
+    from openpyxl.cell import MergedCell
 
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 _BASE = os.environ.get('KRONAN_BASE')
