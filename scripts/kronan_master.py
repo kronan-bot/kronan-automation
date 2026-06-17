@@ -185,7 +185,7 @@ def read_report(path):
     if ws_p:
         for row in ws_p.iter_rows(min_row=2, values_only=True):
             if len(row) < 4: continue
-            pnr, prod, srîr, sale = row[:4]
+            pnr, prod, spnr, sale = row[:4]
             qty = row[4] if len(row) > 4 else 0
             if prod and sale: item_rows[prod] = [sale, int(qty or 0)]
     return date, store_rows, item_rows, store_product_rows
