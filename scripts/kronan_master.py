@@ -10,7 +10,7 @@ from openpyxl import Workbook, load_workbook
 from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
 from collections import defaultdict
 import sys, os
-from openpyxl.cell.cell import MergedCell
+from openpyxl.cell.cell import MergedCel
 
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 _BASE = os.environ.get('KRONAN_BASE')
@@ -72,7 +72,7 @@ def read_report(path):
         if len(row) < 9: continue
         d, chain, ean, store, pnr, prod, spnr, sale, qty = row[:9]
         if store and sale:
-            store_rows[store][0] += sale; store_rows[store][1] += int(qty or 0)
+            store_rows[store][0] += float(str(sale).replace(',','').strip() or 0); store_rows[store][1] += int(qty or 0)
             if d and not date: date = d
         if store and prod and sale:
             store_product_rows[store][prod][0] += sale
