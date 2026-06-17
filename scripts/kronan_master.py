@@ -75,11 +75,24 @@ def read_report(path):
         if len(row) < 9: continue
         d, chain, ean, store, pnr, prod, spnr, sale, qty = row[:9]
         if store and sale:
-            store_rows[store][0] += float(str(sale).replace(',','').strip() or 0); store_rows[store][1] += int(qty or 0)
+            try:
+                store_rows[store][0] += float(str(sale).replace(',','').strip() or 0)
+            except (ValueError, TypeError):
+                pass
+            try:
+                store_rows[store][1] += int(qty or 0)
+            except (ValueError, TypeError):
+                pass
             if d and not date: date = d
         if store and prod and sale:
-            store_product_rows[store][prod][0] += float(str(sale).replace(',','').strip() or 0)
-            store_product_rows[store][prod][1] += int(qty or 0)
+            try:
+                store_product_rows[store][prod][0] += float(str(sale).replace(',','').strip() or 0)
+            except (ValueError, TypeError):
+                pass
+            try:
+                store_product_rows[store][prod][1] += int(qty or 0)
+            except (ValueError, TypeError):
+                pass
             # Use spnr (supplier item number, e.g. R0173) if available, else pnr
             item_num = str(spnr or pnr or '')
             store_product_rows[store][prod][2] = item_num
