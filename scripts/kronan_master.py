@@ -1,5 +1,5 @@
 """
-Krónan Master Sales Tracker
+KrÃ³nan Master Sales Tracker
 Run: python3 kronan_master.py <new_report.xlsx>
 - Appends new daily data to master file (no duplicates)
 - Regenerates monthly summaries automatically
@@ -17,9 +17,9 @@ except ImportError:
 
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 _BASE = os.environ.get('KRONAN_BASE')
-MASTER = os.path.join(_BASE, 'Krónan_Master_Skrá.xlsx') if _BASE else os.path.join(os.path.expanduser("~"), "Documents", "Krónan", "Krónan_Master_Skrá.xlsx")
+MASTER = os.path.join(_BASE, 'KrÃ³nan_Master_SkrÃ¡.xlsx') if _BASE else os.path.join(os.path.expanduser("~"), "Documents", "KrÃ³nan", "KrÃ³nan_Master_SkrÃ¡.xlsx")
 
-# ── Styles ──────────────────────────────────────────────────────────────────
+# ââ Styles ââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
 BLUE = PatternFill("solid", start_color="1F4E79", end_color="1F4E79")
 DARK = PatternFill("solid", start_color="1A5276", end_color="1A5276")
 GREEN = PatternFill("solid", start_color="1E8449", end_color="1E8449")
@@ -58,7 +58,7 @@ def style_month_hdr(cell, val):
     cell.value = val; cell.fill = GREEN; cell.font = secf
     cell.alignment = lft; cell.border = brd
 
-# ── Date parsing helper ──────────────────────────────────────────────────────
+# ââ Date parsing helper ââââââââââââââââââââââââââââââââââââââââââââââââââââââ
 def _try_parse_date(val):
     """Return a datetime object if val is or looks like a date; else None."""
     if val is None:
@@ -85,11 +85,11 @@ def _try_parse_date(val):
                 pass
     return None
 
-# ── Clean corrupted master rows ──────────────────────────────────────────────
+# ââ Clean corrupted master rows ââââââââââââââââââââââââââââââââââââââââââââââ
 def clean_master_dates(wb):
     """Remove rows from daily sheets where date column is not a valid date."""
     total = 0
-    for sname in ["Dagleg - Verslanir", "Dagleg - Vara×Verslun", "Dagleg - Vörur"]:
+    for sname in ["Dagleg - Verslanir", "Dagleg - VaraÃVerslun", "Dagleg - VÃ¶rur"]:
         if sname not in wb.sheetnames:
             continue
         ws = wb[sname]
@@ -108,14 +108,13 @@ def clean_master_dates(wb):
         print("   No corrupted date rows found in master")
     return total
 
-# ── Read incoming report ─────────────────────────────────────────────────────
+# ââ Read incoming report âââââââââââââââââââââââââââââââââââââââââââââââââââââ
 def read_report(path):
     wb = openpyxl.load_workbook(path)
-    # Stores — try canonical name, fall back to first sheet
+    # Stores – try canonical name, fall back to first sheet
     try:
         ws_s = wb['Verslanir']
     except KeyError:
-        # Sheet name may differ (e.g. localised or renamed) — use first sheet
         ws_s = wb.worksheets[0]
         print(f" ⚠ Sheet 'Verslanir' not found, using first sheet: {ws_s.title}")
 
@@ -126,71 +125,50 @@ def read_report(path):
     for r in ws_s.iter_rows(min_row=2, max_row=2, values_only=True):
         print(f" First data row  (row 2): {list(r)[:max_col]}")
 
-    store_rows = defaultdict(lambda: [0.0, 0])
+    store_rows         = defaultdict(lambda: [0.0, 0])
+    item_rows          = defaultdict(lambda: [0.0, 0])
     store_product_rows = defaultdict(lambda: defaultdict(lambda: [0.0, 0, '']))
     date = None
+
     for row in ws_s.iter_rows(min_row=2, values_only=True):
-        if len(row) < 9: continue
-        d, chain, ean, store, pnr, prod, spnr, sale, qty = row[:9]
+        if len(row) < 12: continue
+        # Confirmed column mapping (0-indexed):
+        # 0=Product Name, 4=Vendor Product No, 5=Sales Date,
+        # 9=Store Name, 10=Quantity, 11=Net Amount
+        prod  = row[0]   # Product Name
+        pnr   = row[4]   # Vendor Product No
+        d_raw = row[5]   # Sales Date (datetime object from openpyxl)
+        store = row[9]   # Store Name (e.g. "Krónan Fitjabraut")
+        qty   = row[10]  # Quantity
+        sale  = row[11]  # Net Amount (ISK)
 
-        # Date extraction: try col 0 first (Verslanir format),
-        # then scan the entire row (handles KronanSales SQL-timestamp format)
-        if not date:
-            parsed = _try_parse_date(d)
-            if not parsed:
-                for v in row:
-                    parsed = _try_parse_date(v)
-                    if parsed:
-                        print(f" Date found via row-scan (col {list(row).index(v)}): {parsed}")
+        if not store or not prod: continue
+        if sale is None: sale = 0.0
+
+        # Extract date from first valid row
+        if date is None:
+            d_parsed = _try_parse_date(d_raw)
+            if d_parsed is None:
+                # Fallback: scan all columns for a date-like value
+                for ci, cv in enumerate(row):
+                    d_parsed = _try_parse_date(cv)
+                    if d_parsed:
+                        print(f" Date found via row-scan (col {ci}): {d_parsed}")
                         break
-            if parsed:
-                date = parsed
+            if d_parsed:
+                date = d_parsed
 
-        if store and sale:
-            try:
-                store_rows[store][0] += float(str(sale).replace(',', '').strip() or 0)
-            except (ValueError, TypeError):
-                pass
-            try:
-                store_rows[store][1] += int(qty or 0)
-            except (ValueError, TypeError):
-                pass
-        if store and prod and sale:
-            try:
-                store_product_rows[store][prod][0] += float(str(sale).replace(',', '').strip() or 0)
-            except (ValueError, TypeError):
-                pass
-            try:
-                store_product_rows[store][prod][1] += int(qty or 0)
-            except (ValueError, TypeError):
-                pass
-            # Use spnr (supplier item number, e.g. R0173) if available, else pnr
-            item_num = str(spnr or pnr or '')
-            store_product_rows[store][prod][2] = item_num
+        store_rows[store][0]               += float(sale)
+        store_rows[store][1]               += int(qty or 0)
+        item_rows[prod][0]                 += float(sale)
+        item_rows[prod][1]                 += int(qty or 0)
+        store_product_rows[store][prod][0] += float(sale)
+        store_product_rows[store][prod][1] += int(qty or 0)
+        store_product_rows[store][prod][2]  = str(pnr or '')
 
-    if not date:
-        raise ValueError(f"ABORT: Could not find a valid date in any column of report: {path}")
-
-    # Normalize to datetime object
-    date = _try_parse_date(date)
-
-    # Products — try canonical name, fall back to second sheet
-    try:
-        ws_p = wb['Heild']
-    except KeyError:
-        ws_p = wb.worksheets[1] if len(wb.worksheets) > 1 else None
-        if ws_p:
-            print(f" ⚠ Sheet 'Heild' not found, using sheet: {ws_p.title}")
-    item_rows = {}
-    if ws_p:
-        for row in ws_p.iter_rows(min_row=2, values_only=True):
-            if len(row) < 4: continue
-            pnr, prod, spnr, sale = row[:4]
-            qty = row[4] if len(row) > 4 else 0
-            if prod and sale: item_rows[prod] = [sale, int(qty or 0)]
+    print(f" Date: {date}, Stores: {len(store_rows)}, Products: {len(item_rows)}")
     return date, store_rows, item_rows, store_product_rows
 
-# ── Load or create master ────────────────────────────────────────────────────
 def load_or_create():
     if os.path.exists(MASTER):
         return load_workbook(MASTER)
@@ -198,43 +176,43 @@ def load_or_create():
     # Sheet 1: Daily stores
     ws = wb.active; ws.title = "Dagleg - Verslanir"
     for col, (h, w) in enumerate(zip(
-        ["Dags","Mánuður","Verslun","Sala (kr)","Magn","% Dagsins"],
+        ["Dags","MÃ¡nuÃ°ur","Verslun","Sala (kr)","Magn","% Dagsins"],
         [14, 12, 32, 18, 10, 12]), 1):
         c = ws.cell(1, col); style_header(c, h)
         ws.column_dimensions[openpyxl.utils.get_column_letter(col)].width = w
     ws.row_dimensions[1].height = 20
     ws.freeze_panes = "A2"
     # Sheet 2: Monthly stores
-    ws2 = wb.create_sheet("Mánaðarleg - Verslanir")
+    ws2 = wb.create_sheet("MÃ¡naÃ°arleg - Verslanir")
     for col, (h, w) in enumerate(zip(
-        ["Mánuður","Verslun","Sala (kr)","Magn","% Mánaðarins"],
+        ["MÃ¡nuÃ°ur","Verslun","Sala (kr)","Magn","% MÃ¡naÃ°arins"],
         [14, 32, 18, 10, 16]), 1):
         c = ws2.cell(1, col); style_header(c, h, MHDR)
         ws2.column_dimensions[openpyxl.utils.get_column_letter(col)].width = w
     ws2.row_dimensions[1].height = 20
     ws2.freeze_panes = "A2"
     # Sheet 3: Daily products
-    ws3 = wb.create_sheet("Dagleg - Vörur")
+    ws3 = wb.create_sheet("Dagleg - VÃ¶rur")
     for col, (h, w) in enumerate(zip(
-        ["Dags","Mánuður","Vara","Sala (kr)","Magn","% Dagsins"],
+        ["Dags","MÃ¡nuÃ°ur","Vara","Sala (kr)","Magn","% Dagsins"],
         [14, 12, 44, 18, 10, 12]), 1):
         c = ws3.cell(1, col); style_header(c, h)
         ws3.column_dimensions[openpyxl.utils.get_column_letter(col)].width = w
     ws3.row_dimensions[1].height = 20
     ws3.freeze_panes = "A2"
     # Sheet 4: Monthly products
-    ws4 = wb.create_sheet("Mánaðarleg - Vörur")
+    ws4 = wb.create_sheet("MÃ¡naÃ°arleg - VÃ¶rur")
     for col, (h, w) in enumerate(zip(
-        ["Mánuður","Vara","Sala (kr)","Magn","% Mánaðarins"],
+        ["MÃ¡nuÃ°ur","Vara","Sala (kr)","Magn","% MÃ¡naÃ°arins"],
         [14, 44, 18, 10, 16]), 1):
         c = ws4.cell(1, col); style_header(c, h, MHDR)
         ws4.column_dimensions[openpyxl.utils.get_column_letter(col)].width = w
     ws4.row_dimensions[1].height = 20
     ws4.freeze_panes = "A2"
-    # Sheet 5: Daily store×product breakdown
-    ws5 = wb.create_sheet("Dagleg - Vara×Verslun")
+    # Sheet 5: Daily storeÃproduct breakdown
+    ws5 = wb.create_sheet("Dagleg - VaraÃVerslun")
     for col, (h, w) in enumerate(zip(
-        ["Dags","Mánuður","Verslun","Vara","Sala (kr)","Magn"],
+        ["Dags","MÃ¡nuÃ°ur","Verslun","Vara","Sala (kr)","Magn"],
         [14, 12, 32, 44, 18, 10]), 1):
         c = ws5.cell(1, col); style_header(c, h)
         ws5.column_dimensions[openpyxl.utils.get_column_letter(col)].width = w
@@ -242,7 +220,7 @@ def load_or_create():
     ws5.freeze_panes = "A2"
     return wb
 
-# ── Append daily data ────────────────────────────────────────────────────────
+# ââ Append daily data ââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
 def append_daily(wb, date, store_rows, item_rows, store_product_rows=None):
     date_val = date.date() if hasattr(date, 'date') else date
     month_str = date.strftime("%Y-%m") if hasattr(date, 'strftime') else str(date)[:7]
@@ -256,7 +234,7 @@ def append_daily(wb, date, store_rows, item_rows, store_product_rows=None):
             d = row[0].date() if hasattr(row[0], 'date') else row[0]
             existing_dates.add(d)
     if date_val in existing_dates:
-        print(f" ⚠ {date_val} already in Dagleg - Verslanir, skipping.")
+        print(f" â  {date_val} already in Dagleg - Verslanir, skipping.")
     else:
         store_total = sum(v[0] for v in store_rows.values())
         stores_sorted = sorted(store_rows.items(), key=lambda x: -x[1][0])
@@ -275,17 +253,17 @@ def append_daily(wb, date, store_rows, item_rows, store_product_rows=None):
                 style_data(ws.cell(r, col), val, fmt, aln, fill)
             ws.row_dimensions[r].height = 17
             r += 1
-        print(f" ✓ Appended {len(stores_sorted)} store rows for {date_val}")
+        print(f" â Appended {len(stores_sorted)} store rows for {date_val}")
 
     # --- Products sheet ---
-    ws3 = wb["Dagleg - Vörur"]
+    ws3 = wb["Dagleg - VÃ¶rur"]
     existing_dates3 = set()
     for row in ws3.iter_rows(min_row=2, values_only=True):
         if row[0]:
             d = row[0].date() if hasattr(row[0], 'date') else row[0]
             existing_dates3.add(d)
     if date_val in existing_dates3:
-        print(f" ⚠ {date_val} already in Dagleg - Vörur, skipping.")
+        print(f" â  {date_val} already in Dagleg - VÃ¶rur, skipping.")
     else:
         item_total = sum(v[0] for v in item_rows.values())
         items_sorted = sorted(item_rows.items(), key=lambda x: -x[1][0])
@@ -304,26 +282,26 @@ def append_daily(wb, date, store_rows, item_rows, store_product_rows=None):
                 style_data(ws3.cell(r, col), val, fmt, aln, fill)
             ws3.row_dimensions[r].height = 17
             r += 1
-        print(f" ✓ Appended {len(items_sorted)} product rows for {date_val}")
+        print(f" â Appended {len(items_sorted)} product rows for {date_val}")
 
-    # --- Store×Product sheet ---
-    if "Dagleg - Vara×Verslun" not in wb.sheetnames:
-        ws5 = wb.create_sheet("Dagleg - Vara×Verslun")
+    # --- StoreÃProduct sheet ---
+    if "Dagleg - VaraÃVerslun" not in wb.sheetnames:
+        ws5 = wb.create_sheet("Dagleg - VaraÃVerslun")
         for col, (h, w) in enumerate(zip(
-            ["Dags","Mánuður","Verslun","Vara","Sala (kr)","Magn","Vörunúmer"],
+            ["Dags","MÃ¡nuÃ°ur","Verslun","Vara","Sala (kr)","Magn","VÃ¶runÃºmer"],
             [14, 12, 32, 44, 18, 10, 14]), 1):
             c = ws5.cell(1, col); style_header(c, h)
             ws5.column_dimensions[openpyxl.utils.get_column_letter(col)].width = w
         ws5.row_dimensions[1].height = 20
         ws5.freeze_panes = "A2"
-    ws5 = wb["Dagleg - Vara×Verslun"]
+    ws5 = wb["Dagleg - VaraÃVerslun"]
     existing_dates5 = set()
     for row in ws5.iter_rows(min_row=2, values_only=True):
         if row[0]:
             d = row[0].date() if hasattr(row[0], 'date') else row[0]
             existing_dates5.add(d)
     if date_val in existing_dates5:
-        print(f" ⚠ {date_val} already in Dagleg - Vara×Verslun, skipping.")
+        print(f" â  {date_val} already in Dagleg - VaraÃVerslun, skipping.")
     else:
         r = ws5.max_row + 1
         count = 0
@@ -343,9 +321,9 @@ def append_daily(wb, date, store_rows, item_rows, store_product_rows=None):
                     style_data(ws5.cell(r, col), val, fmt, aln, fill)
                 ws5.row_dimensions[r].height = 17
                 r += 1; count += 1
-        print(f" ✓ Appended {count} store×product rows for {date_val}")
+        print(f" â Appended {count} storeÃproduct rows for {date_val}")
 
-# ── Rebuild monthly summaries ────────────────────────────────────────────────
+# ââ Rebuild monthly summaries ââââââââââââââââââââââââââââââââââââââââââââââââ
 def rebuild_monthly(wb):
     # --- Monthly Stores ---
     ws_daily = wb["Dagleg - Verslanir"]
@@ -356,7 +334,7 @@ def rebuild_monthly(wb):
             monthly_stores[month][store][0] += sale
             monthly_stores[month][store][1] += int(qty or 0)
 
-    ws_m = wb["Mánaðarleg - Verslanir"]
+    ws_m = wb["MÃ¡naÃ°arleg - Verslanir"]
     # Unmerge all, then clear
     for merge in list(ws_m.merged_cells.ranges):
         ws_m.unmerge_cells(str(merge))
@@ -394,10 +372,10 @@ def rebuild_monthly(wb):
             style_total(ws_m.cell(r, col), val, fmt, aln)
         ws_m.row_dimensions[r].height = 18
         r += 1
-    print(f" ✓ Monthly stores summary rebuilt ({len(monthly_stores)} months)")
+    print(f" â Monthly stores summary rebuilt ({len(monthly_stores)} months)")
 
     # --- Monthly Products ---
-    ws_daily3 = wb["Dagleg - Vörur"]
+    ws_daily3 = wb["Dagleg - VÃ¶rur"]
     monthly_items = defaultdict(lambda: defaultdict(lambda: [0.0, 0]))
     for row in ws_daily3.iter_rows(min_row=2, values_only=True):
         d, month, prod, sale, qty, pct = row
@@ -405,7 +383,7 @@ def rebuild_monthly(wb):
             monthly_items[month][prod][0] += sale
             monthly_items[month][prod][1] += int(qty or 0)
 
-    ws_m4 = wb["Mánaðarleg - Vörur"]
+    ws_m4 = wb["MÃ¡naÃ°arleg - VÃ¶rur"]
     # Unmerge all, then clear
     for merge in list(ws_m4.merged_cells.ranges):
         ws_m4.unmerge_cells(str(merge))
@@ -441,9 +419,9 @@ def rebuild_monthly(wb):
             style_total(ws_m4.cell(r, col), val, fmt, aln)
         ws_m4.row_dimensions[r].height = 18
         r += 1
-    print(f" ✓ Monthly products summary rebuilt ({len(monthly_items)} months)")
+    print(f" â Monthly products summary rebuilt ({len(monthly_items)} months)")
 
-# ── Main ─────────────────────────────────────────────────────────────────────
+# ââ Main âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
 def run(report_path):
     print(f"\n\U0001f4c2 Reading report: {report_path}")
     date, store_rows, item_rows, store_product_rows = read_report(report_path)
@@ -452,13 +430,13 @@ def run(report_path):
     wb = load_or_create()
     print(f"\n\U0001f9f9 Checking master for corrupted rows...")
     clean_master_dates(wb)
-    print(f"\n➕ Appending daily data...")
+    print(f"\nâ Appending daily data...")
     append_daily(wb, date, store_rows, item_rows, store_product_rows)
     print(f"\n\U0001f4c5 Rebuilding monthly summaries...")
     rebuild_monthly(wb)
     wb.save(MASTER)
-    print(f"\n✅ Master file saved: {MASTER}")
+    print(f"\nâ Master file saved: {MASTER}")
 
 if __name__ == "__main__":
-    path = sys.argv[1] if len(sys.argv) > 1 else os.path.join(SCRIPT_DIR, 'Krónan söluskýrsla.xlsx')
+    path = sys.argv[1] if len(sys.argv) > 1 else os.path.join(SCRIPT_DIR, 'KrÃ³nan sÃ¶luskÃ½rsla.xlsx')
     run(path)
