@@ -58,7 +58,7 @@ jobs:
 
       - name: Rebuild dashboard from master
         run: |
-          MSIZE=$(wc -c < "data/KrÃ³nan_Master_SkrÃ¡.xlsx" 2>/dev/null || echo 0)
+          MSIZE=$(ls -l data/Kr*_Master_Skr*.xlsx 2>/dev/null | awk '{print $5}' || echo 0)
           if [ "$MSIZE" -gt 100000 ]; then
             KRONAN_BASE=data python scripts/update_dashboard_data.py && echo "Rebuilt OK" || echo "Rebuild failed"
           fi
