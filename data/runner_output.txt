@@ -6,7 +6,7 @@ SyntaxError: Non-UTF-8 code starting with '\xee' in file /home/runner/work/krona
 
 → Found: KronanSales.xlsx
   Downloaded (149,461 bytes)
-  $ /opt/hostedtoolcache/Python/3.11.15/x64/bin/python /home/runner/work/kronan-automation/kronan-automation/scripts/kronan_master.py /tmp/tmpc0bx0puf.xlsx
+  $ /opt/hostedtoolcache/Python/3.11.15/x64/bin/python /home/runner/work/kronan-automation/kronan-automation/scripts/kronan_master.py /tmp/tmpci_ajui3.xlsx
   ✗ kronan_master.py failed (exit 1)
 [output] processed=false
 ---EXIT:0---
