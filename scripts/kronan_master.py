@@ -19,7 +19,7 @@ SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 _BASE = os.environ.get('KRONAN_BASE')
 MASTER = os.path.join(_BASE, 'Krónan_Master_Skrá.xlsx') if _BASE else os.path.join(os.path.expanduser("~"), "Documents", "Krónan", "Krónan_Master_Skrá.xlsx")
 
-# ── Styles ─────────────────────────────────────────────────────────────────
+# ── Styles ──────────────────────────────────────────────────────────────────
 BLUE = PatternFill("solid", start_color="1F4E79", end_color="1F4E79")
 DARK = PatternFill("solid", start_color="1A5276", end_color="1A5276")
 GREEN = PatternFill("solid", start_color="1E8449", end_color="1E8449")
@@ -85,7 +85,7 @@ def _try_parse_date(val):
                 pass
     return None
 
-# ── Clean corrupted master rows ─────────────────────────────────────────────
+# ── Clean corrupted master rows ──────────────────────────────────────────────
 def clean_master_dates(wb):
     """Remove rows from daily sheets where date column is not a valid date."""
     total = 0
