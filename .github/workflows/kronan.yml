@@ -1,4 +1,4 @@
-name: Krónan Daily Report
+name: KrÃ³nan Daily Report
 
 on:
   schedule:
@@ -35,17 +35,6 @@ jobs:
           DROPBOX_APP_SECRET:    ${{ secrets.DROPBOX_APP_SECRET }}
         run: KRONAN_BASE=data python scripts/restore_dashboard.py
 
-      - name: Refresh scripts from Dropbox
-        env:
-          DROPBOX_REFRESH_TOKEN: ${{ secrets.DROPBOX_REFRESH_TOKEN }}
-          DROPBOX_APP_KEY:       ${{ secrets.DROPBOX_APP_KEY }}
-          DROPBOX_APP_SECRET:    ${{ secrets.DROPBOX_APP_SECRET }}
-        run: |
-          DTOKEN=$(curl -s https://api.dropbox.com/oauth2/token -d grant_type=refresh_token -d refresh_token=$DROPBOX_REFRESH_TOKEN -d client_id=$DROPBOX_APP_KEY -d client_secret=$DROPBOX_APP_SECRET | python3 -c "import sys,json; print(json.load(sys.stdin).get('access_token',''))")
-          if [ -n "$DTOKEN" ]; then
-            curl -sX POST https://content.dropboxapi.com/2/files/download               -H "Authorization: Bearer $DTOKEN"               -H 'Dropbox-API-Arg: {"path":"/Krónan_Scripts/update_dashboard_data.py"}'               -o scripts/update_dashboard_data.py && echo "Downloaded update_dashboard_data.py" || echo "Download failed"
-          fi
-
       - name: Patch dashboard JS
         run: KRONAN_BASE=data python scripts/fix_dashboard_js.py
 
@@ -69,7 +58,7 @@ jobs:
 
       - name: Rebuild dashboard from master
         run: |
-          MSIZE=$(wc -c < "data/Krónan_Master_Skrá.xlsx" 2>/dev/null || echo 0)
+          MSIZE=$(wc -c < "data/KrÃ³nan_Master_SkrÃ¡.xlsx" 2>/dev/null || echo 0)
           if [ "$MSIZE" -gt 100000 ]; then
             KRONAN_BASE=data python scripts/update_dashboard_data.py && echo "Rebuilt OK" || echo "Rebuild failed"
           fi
@@ -80,7 +69,7 @@ jobs:
           NETLIFY_TOKEN: ${{ secrets.NETLIFY_TOKEN }}
           NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
         run: |
-          cp "data/Krónan_Dashboard.html" /tmp/index.html
+          cp "data/KrÃ³nan_Dashboard.html" /tmp/index.html
           printf "/*\n  Content-Type: text/html; charset=utf-8\n  X-Content-Type-Options: nosniff\n" > /tmp/_headers
           cd /tmp && zip -j /tmp/deploy.zip index.html _headers && cd -
           RESULT=$(curl -sL -H "Authorization: Bearer $NETLIFY_TOKEN" -H "Content-Type: application/zip" --data-binary @/tmp/deploy.zip "https://api.netlify.com/api/v1/sites/$NETLIFY_SITE_ID/deploys")
@@ -90,7 +79,7 @@ jobs:
       - name: Commit results
         if: always()
         run: |
-          git config user.name "Krónan Bot"
+          git config user.name "KrÃ³nan Bot"
           git config user.email "kronan-bot@tokyo.is"
           git add data/
           git diff --staged --quiet || git commit -m "run: $(date -u '+%Y-%m-%d %H:%M UTC') processed=${{ steps.runner.outputs.processed }}"
