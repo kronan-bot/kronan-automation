@@ -7,6 +7,8 @@ Injects month-scoped overrides into the dashboard HTML.
 3. Store-products override — "Vörur eftir verslunum" scoped to selected month/day
 4. Store-sales override    — "Vara sala eftir verslun" scoped to selected month
 5. Date dropdown rebuild   — only shows dates of the selected month
+6. Store breakdown fix     — "Verslanir — sundurliðun" aggregates by month
+7. Month tab default       — clicking month tab defaults to month-total view
 Safe: appends AFTER existing code, never modifies original functions.
 Idempotent: checks for marker before injecting.
 """
@@ -14,11 +16,12 @@ import os, sys, re
 
 BASE = os.environ.get('KRONAN_BASE', 'data')
 HTML = os.path.join(BASE, 'Krónan_Dashboard.html')
-MARKER = '/* MONTH_SCOPED_YFIRLIT_V5 */'
+MARKER = '/* MONTH_SCOPED_YFIRLIT_V6 */'
 OLD_MARKERS = [
     '/* MONTH_SCOPED_YFIRLIT */',
     '/* MONTH_SCOPED_YFIRLIT_V3 */',
     '/* MONTH_SCOPED_YFIRLIT_V4 */',
+    '/* MONTH_SCOPED_YFIRLIT_V5 */',
 ]
 
 if not os.path.exists(HTML):
@@ -29,7 +32,7 @@ with open(HTML, 'r', encoding='utf-8') as f:
     src = f.read()
 
 if MARKER in src:
-    print('Month-scoped Yfirlit V5 already injected, nothing to do')
+    print('Month-scoped Yfirlit V6 already injected, nothing to do')
     sys.exit(0)
 
 # Remove any older injection (each was appended as the last block before </script>)
@@ -65,11 +68,54 @@ JS_PATCH = """
     return MONTH_FULL_IS[parseInt(p[1],10)] + ' ' + p[0];
   }
 
+  // ── 0. getStoresForDate: month-aggregated when currentDate==='all' & currentMonth ──
+  var _baseGetStores = getStoresForDate;
+  window.getStoresForDate = function(d) {
+    if (d === 'all' && currentMonth) {
+      var mDates = DATES.filter(function(date) { return date.indexOf(currentMonth) === 0; });
+      var agg = {};
+      mDates.forEach(function(date) {
+        (STORES_BY_DATE[date] || []).forEach(function(r) {
+          if (!agg[r.store]) agg[r.store] = {sale: 0, qty: 0};
+          agg[r.store].sale += r.sale;
+          agg[r.store].qty  += r.qty;
+        });
+      });
+      return Object.keys(agg).map(function(name) {
+        return [name, agg[name]];
+      }).sort(function(a, b) { return b[1].sale - a[1].sale; });
+    }
+    return _baseGetStores(d);
+  };
+
+  // ── 0b. updateDayTabs: after rebuilding day tabs, default to month-total view ──
+  var _baseUpdateDayTabs = updateDayTabs;
+  window.updateDayTabs = function(m) {
+    _baseUpdateDayTabs(m);
+    // Default selection after tab rebuild is 'all' so month-total view shows immediately
+    currentDate = 'all';
+    // Activate the 'all' tab button visually
+    var allBtn = document.querySelector('#date-tabs .tab-all');
+    if (allBtn) {
+      document.querySelectorAll('.tab,.tab-all').forEach(function(b){b.classList.remove('active');});
+      allBtn.classList.add('active');
+    }
+  };
+
   // ── 1. KPI override + month-scoped date dropdown ──────────────────────────
   var _baseR = render;
   window.render = function monthScopedRender() {
     rebuildStoreSaleDropdown();
     _baseR();
+    // Fix hardcoded chart title
+    var chartTitle = document.getElementById('main-chart-title');
+    if (chartTitle && currentDate === 'all') {
+      if (currentMonth) {
+        chartTitle.textContent = 'Dagleg sala — ' + monthTitle(currentMonth);
+      } else {
+        chartTitle.textContent = 'Dagleg sala — Allt tímabilið';
+      }
+    }
     if (currentDate !== 'all' || !currentMonth) return;
     var mDates = monthDates();
     if (!mDates.length) return;
@@ -118,7 +164,7 @@ JS_PATCH = """
     var mDates = monthDates();
     if (!mDates.length) { _baseHeat(); return; }
 
-    // Top-12 stores ranked by month sales
+    // Top stores ranked by month sales
     var mTotals = {};
     mDates.forEach(function(d) {
       (STORES_BY_DATE[d]||[]).forEach(function(r) {
@@ -126,8 +172,7 @@ JS_PATCH = """
       });
     });
     var storeNames = Object.keys(mTotals)
-      .sort(function(a,b){ return mTotals[b]-mTotals[a]; })
-      ;
+      .sort(function(a,b){ return mTotals[b]-mTotals[a]; });
 
     var dayLabels = mDates.map(function(d) {
       var p = d.split('-').map(Number);
@@ -154,7 +199,6 @@ JS_PATCH = """
       return (t>0.25&&t<0.75)?'#1a1a1a':'#fff';
     }
 
-    // Highlight selected day column
     var selIdx = (currentDate !== 'all') ? mDates.indexOf(currentDate) : -1;
 
     var html = '<table class="heatmap"><thead><tr><th class="store-col">Verslun</th>';
@@ -204,7 +248,6 @@ JS_PATCH = """
       });
     });
 
-    // Dynamic label: day, month or whole period — never hardcoded
     var lbl = document.getElementById('sp-date-label');
     if (lbl) {
       if (currentDate !== 'all') lbl.textContent = '— ' + dayLabel(currentDate);
@@ -370,6 +413,15 @@ JS_PATCH = """
     if (countEl) countEl.textContent = storeList.length + ' verslanir, ' + totalRows + ' vörur';
   };
 
+  // ── 5. Initial render: apply month-total view on page load ────────────────
+  currentDate = 'all';
+  var allBtn = document.querySelector('#date-tabs .tab-all');
+  if (allBtn) {
+    document.querySelectorAll('.tab,.tab-all').forEach(function(b){b.classList.remove('active');});
+    allBtn.classList.add('active');
+  }
+  render();
+
 })();
 """
 
@@ -378,4 +430,4 @@ patched = src[:inject_point] + JS_PATCH + src[inject_point:]
 with open(HTML, 'w', encoding='utf-8') as f:
     f.write(patched)
 
-print(f'✅ V5 injected: month-scoped KPI + heatmap + products-by-store + product table ({len(patched):,} bytes)')
+print(f'V6 injected: month-scoped stores breakdown + KPI + heatmap + products ({len(patched):,} bytes)')
