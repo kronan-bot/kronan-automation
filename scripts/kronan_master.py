@@ -131,16 +131,17 @@ def read_report(path):
     date = None
 
     for row in ws_s.iter_rows(min_row=2, values_only=True):
-        if len(row) < 12: continue
-        # Confirmed column mapping (0-indexed):
-        # 0=Product Name, 4=Vendor Product No, 5=Sales Date,
-        # 9=Store Name, 10=Quantity, 11=Net Amount
-        prod  = row[0]   # Product Name
-        pnr   = row[4]   # Vendor Product No
-        d_raw = row[5]   # Sales Date (datetime object from openpyxl)
-        store = row[9]   # Store Name (e.g. "Krónan Fitjabraut")
-        qty   = row[10]  # Quantity
-        sale  = row[11]  # Net Amount (ISK)
+        if len(row) < 9: continue
+        # Actual column mapping (0-indexed) - 9-column Kronan format:
+        # 0=Dags (Date), 1=Kedja (Chain), 2=EAN, 3=Heiti verslunar (Store),
+        # 4=Voru Nr (Product No), 5=Vara (Product Name), 6=Vendor No,
+        # 7=Sala (Sales ISK), 8=Magn (Quantity)
+        d_raw = row[0]   # Date
+        store = row[3]   # Store Name
+        pnr   = row[4]   # Product No (internal)
+        prod  = row[5]   # Product Name
+        sale  = row[7]   # Sales (ISK)
+        qty   = row[8]   # Quantity
 
         if not store or not prod: continue
         if sale is None: sale = 0.0
