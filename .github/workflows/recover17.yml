@@ -1,0 +1,68 @@
+name: Recover June 17 Report
+on:
+  workflow_dispatch:
+jobs:
+  recover:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    env:
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: pip install -r requirements.txt
+      - name: Move June 17 back from Processed
+        env:
+          DROPBOX_REFRESH_TOKEN: ${{ secrets.DROPBOX_REFRESH_TOKEN }}
+          DROPBOX_APP_KEY: ${{ secrets.DROPBOX_APP_KEY }}
+          DROPBOX_APP_SECRET: ${{ secrets.DROPBOX_APP_SECRET }}
+        run: python scripts/recover_june17.py
+      - name: Restore dashboard template
+        env:
+          DROPBOX_REFRESH_TOKEN: ${{ secrets.DROPBOX_REFRESH_TOKEN }}
+          DROPBOX_APP_KEY: ${{ secrets.DROPBOX_APP_KEY }}
+          DROPBOX_APP_SECRET: ${{ secrets.DROPBOX_APP_SECRET }}
+        run: KRONAN_BASE=data python scripts/restore_dashboard.py
+      - name: Patch dashboard JS
+        run: KRONAN_BASE=data python scripts/fix_dashboard_js.py
+      - name: Run cloud runner to process June 17
+        env:
+          DROPBOX_REFRESH_TOKEN: ${{ secrets.DROPBOX_REFRESH_TOKEN }}
+          DROPBOX_APP_KEY: ${{ secrets.DROPBOX_APP_KEY }}
+          DROPBOX_APP_SECRET: ${{ secrets.DROPBOX_APP_SECRET }}
+          NETLIFY_TOKEN: ${{ secrets.NETLIFY_TOKEN }}
+          NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
+        run: |
+          mkdir -p data
+          KRONAN_BASE=data python scripts/cloud_runner.py 2>&1 | tee data/runner_output.txt
+      - name: Check master dates
+        run: KRONAN_BASE=data python scripts/check_master.py
+      - name: Rebuild dashboard from master
+        run: |
+          MSIZE=$(ls -l data/Kr*_Master_Skr*.xlsx 2>/dev/null | awk '{print $5}' || echo 0)
+          if [ "$MSIZE" -gt 100000 ]; then
+            KRONAN_BASE=data python scripts/update_dashboard_data.py && echo "Rebuilt OK"
+          fi
+      - name: Deploy to Netlify
+        env:
+          NETLIFY_TOKEN: ${{ secrets.NETLIFY_TOKEN }}
+          NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
+        run: |
+          cp data/*Dashboard*.html /tmp/index.html
+          printf "/*\n  Content-Type: text/html; charset=utf-8\n  X-Content-Type-Options: nosniff\n" > /tmp/_headers
+          cd /tmp && zip -j /tmp/deploy.zip index.html _headers && cd -
+          RESULT=$(curl -sL -H "Authorization: Bearer $NETLIFY_TOKEN" -H "Content-Type: application/zip" --data-binary @/tmp/deploy.zip "https://api.netlify.com/api/v1/sites/$NETLIFY_SITE_ID/deploys")
+          echo "Deploy: $(echo $RESULT | python3 -c 'import sys,json; d=json.load(sys.stdin); print(d.get("state","?"))')"
+      - name: Commit results
+        run: |
+          git config user.name "Kr\u00f3nan Bot"
+          git config user.email "kronan-bot@tokyo.is"
+          git add data/
+          git diff --staged --quiet || git commit -m "recover: Jun 17 data added with fixed column mapping"
+          git pull --rebase origin main || true
+          git push
