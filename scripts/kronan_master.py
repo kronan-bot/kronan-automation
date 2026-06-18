@@ -1,5 +1,5 @@
 """
-KrÃ³nan Master Sales Tracker
+Krónan Master Sales Tracker
 Run: python3 kronan_master.py <new_report.xlsx>
 - Appends new daily data to master file (no duplicates)
 - Regenerates monthly summaries automatically
@@ -17,7 +17,7 @@ except ImportError:
 
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 _BASE = os.environ.get('KRONAN_BASE')
-MASTER = os.path.join(_BASE, 'KrÃ³nan_Master_SkrÃ¡.xlsx') if _BASE else os.path.join(os.path.expanduser("~"), "Documents", "KrÃ³nan", "KrÃ³nan_Master_SkrÃ¡.xlsx")
+MASTER = os.path.join(_BASE, 'Krónan_Master_Skrá.xlsx') if _BASE else os.path.join(os.path.expanduser("~"), "Documents", "Krónan", "Krónan_Master_Skrá.xlsx")
 
 # ââ Styles ââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
 BLUE = PatternFill("solid", start_color="1F4E79", end_color="1F4E79")
@@ -89,7 +89,7 @@ def _try_parse_date(val):
 def clean_master_dates(wb):
     """Remove rows from daily sheets where date column is not a valid date."""
     total = 0
-    for sname in ["Dagleg - Verslanir", "Dagleg - VaraÃVerslun", "Dagleg - VÃ¶rur"]:
+    for sname in ["Dagleg - Verslanir", "Dagleg - Vara×Verslun", "Dagleg - Vörur"]:
         if sname not in wb.sheetnames:
             continue
         ws = wb[sname]
@@ -177,43 +177,43 @@ def load_or_create():
     # Sheet 1: Daily stores
     ws = wb.active; ws.title = "Dagleg - Verslanir"
     for col, (h, w) in enumerate(zip(
-        ["Dags","MÃ¡nuÃ°ur","Verslun","Sala (kr)","Magn","% Dagsins"],
+        ["Dags","Mánuður","Verslun","Sala (kr)","Magn","% Dagsins"],
         [14, 12, 32, 18, 10, 12]), 1):
         c = ws.cell(1, col); style_header(c, h)
         ws.column_dimensions[openpyxl.utils.get_column_letter(col)].width = w
     ws.row_dimensions[1].height = 20
     ws.freeze_panes = "A2"
     # Sheet 2: Monthly stores
-    ws2 = wb.create_sheet("MÃ¡naÃ°arleg - Verslanir")
+    ws2 = wb.create_sheet("Mánaðarleg - Verslanir")
     for col, (h, w) in enumerate(zip(
-        ["MÃ¡nuÃ°ur","Verslun","Sala (kr)","Magn","% MÃ¡naÃ°arins"],
+        ["Mánuður","Verslun","Sala (kr)","Magn","% Mánaðarins"],
         [14, 32, 18, 10, 16]), 1):
         c = ws2.cell(1, col); style_header(c, h, MHDR)
         ws2.column_dimensions[openpyxl.utils.get_column_letter(col)].width = w
     ws2.row_dimensions[1].height = 20
     ws2.freeze_panes = "A2"
     # Sheet 3: Daily products
-    ws3 = wb.create_sheet("Dagleg - VÃ¶rur")
+    ws3 = wb.create_sheet("Dagleg - Vörur")
     for col, (h, w) in enumerate(zip(
-        ["Dags","MÃ¡nuÃ°ur","Vara","Sala (kr)","Magn","% Dagsins"],
+        ["Dags","Mánuður","Vara","Sala (kr)","Magn","% Dagsins"],
         [14, 12, 44, 18, 10, 12]), 1):
         c = ws3.cell(1, col); style_header(c, h)
         ws3.column_dimensions[openpyxl.utils.get_column_letter(col)].width = w
     ws3.row_dimensions[1].height = 20
     ws3.freeze_panes = "A2"
     # Sheet 4: Monthly products
-    ws4 = wb.create_sheet("MÃ¡naÃ°arleg - VÃ¶rur")
+    ws4 = wb.create_sheet("Mánaðarleg - Vörur")
     for col, (h, w) in enumerate(zip(
-        ["MÃ¡nuÃ°ur","Vara","Sala (kr)","Magn","% MÃ¡naÃ°arins"],
+        ["Mánuður","Vara","Sala (kr)","Magn","% Mánaðarins"],
         [14, 44, 18, 10, 16]), 1):
         c = ws4.cell(1, col); style_header(c, h, MHDR)
         ws4.column_dimensions[openpyxl.utils.get_column_letter(col)].width = w
     ws4.row_dimensions[1].height = 20
     ws4.freeze_panes = "A2"
-    # Sheet 5: Daily storeÃproduct breakdown
-    ws5 = wb.create_sheet("Dagleg - VaraÃVerslun")
+    # Sheet 5: Daily store×product breakdown
+    ws5 = wb.create_sheet("Dagleg - Vara×Verslun")
     for col, (h, w) in enumerate(zip(
-        ["Dags","MÃ¡nuÃ°ur","Verslun","Vara","Sala (kr)","Magn"],
+        ["Dags","Mánuður","Verslun","Vara","Sala (kr)","Magn"],
         [14, 12, 32, 44, 18, 10]), 1):
         c = ws5.cell(1, col); style_header(c, h)
         ws5.column_dimensions[openpyxl.utils.get_column_letter(col)].width = w
@@ -257,14 +257,14 @@ def append_daily(wb, date, store_rows, item_rows, store_product_rows=None):
         print(f" â Appended {len(stores_sorted)} store rows for {date_val}")
 
     # --- Products sheet ---
-    ws3 = wb["Dagleg - VÃ¶rur"]
+    ws3 = wb["Dagleg - Vörur"]
     existing_dates3 = set()
     for row in ws3.iter_rows(min_row=2, values_only=True):
         if row[0]:
             d = row[0].date() if hasattr(row[0], 'date') else row[0]
             existing_dates3.add(d)
     if date_val in existing_dates3:
-        print(f" â  {date_val} already in Dagleg - VÃ¶rur, skipping.")
+        print(f" â  {date_val} already in Dagleg - Vörur, skipping.")
     else:
         item_total = sum(v[0] for v in item_rows.values())
         items_sorted = sorted(item_rows.items(), key=lambda x: -x[1][0])
@@ -285,24 +285,24 @@ def append_daily(wb, date, store_rows, item_rows, store_product_rows=None):
             r += 1
         print(f" â Appended {len(items_sorted)} product rows for {date_val}")
 
-    # --- StoreÃProduct sheet ---
-    if "Dagleg - VaraÃVerslun" not in wb.sheetnames:
-        ws5 = wb.create_sheet("Dagleg - VaraÃVerslun")
+    # --- Store×Product sheet ---
+    if "Dagleg - Vara×Verslun" not in wb.sheetnames:
+        ws5 = wb.create_sheet("Dagleg - Vara×Verslun")
         for col, (h, w) in enumerate(zip(
-            ["Dags","MÃ¡nuÃ°ur","Verslun","Vara","Sala (kr)","Magn","VÃ¶runÃºmer"],
+            ["Dags","Mánuður","Verslun","Vara","Sala (kr)","Magn","Vörunúmer"],
             [14, 12, 32, 44, 18, 10, 14]), 1):
             c = ws5.cell(1, col); style_header(c, h)
             ws5.column_dimensions[openpyxl.utils.get_column_letter(col)].width = w
         ws5.row_dimensions[1].height = 20
         ws5.freeze_panes = "A2"
-    ws5 = wb["Dagleg - VaraÃVerslun"]
+    ws5 = wb["Dagleg - Vara×Verslun"]
     existing_dates5 = set()
     for row in ws5.iter_rows(min_row=2, values_only=True):
         if row[0]:
             d = row[0].date() if hasattr(row[0], 'date') else row[0]
             existing_dates5.add(d)
     if date_val in existing_dates5:
-        print(f" â  {date_val} already in Dagleg - VaraÃVerslun, skipping.")
+        print(f" â  {date_val} already in Dagleg - Vara×Verslun, skipping.")
     else:
         r = ws5.max_row + 1
         count = 0
@@ -322,7 +322,7 @@ def append_daily(wb, date, store_rows, item_rows, store_product_rows=None):
                     style_data(ws5.cell(r, col), val, fmt, aln, fill)
                 ws5.row_dimensions[r].height = 17
                 r += 1; count += 1
-        print(f" â Appended {count} storeÃproduct rows for {date_val}")
+        print(f" â Appended {count} store×product rows for {date_val}")
 
 # ââ Rebuild monthly summaries ââââââââââââââââââââââââââââââââââââââââââââââââ
 def rebuild_monthly(wb):
@@ -335,7 +335,7 @@ def rebuild_monthly(wb):
             monthly_stores[month][store][0] += sale
             monthly_stores[month][store][1] += int(qty or 0)
 
-    ws_m = wb["MÃ¡naÃ°arleg - Verslanir"]
+    ws_m = wb["Mánaðarleg - Verslanir"]
     # Unmerge all, then clear
     for merge in list(ws_m.merged_cells.ranges):
         ws_m.unmerge_cells(str(merge))
@@ -376,7 +376,7 @@ def rebuild_monthly(wb):
     print(f" â Monthly stores summary rebuilt ({len(monthly_stores)} months)")
 
     # --- Monthly Products ---
-    ws_daily3 = wb["Dagleg - VÃ¶rur"]
+    ws_daily3 = wb["Dagleg - Vörur"]
     monthly_items = defaultdict(lambda: defaultdict(lambda: [0.0, 0]))
     for row in ws_daily3.iter_rows(min_row=2, values_only=True):
         d, month, prod, sale, qty, pct = row
@@ -384,7 +384,7 @@ def rebuild_monthly(wb):
             monthly_items[month][prod][0] += sale
             monthly_items[month][prod][1] += int(qty or 0)
 
-    ws_m4 = wb["MÃ¡naÃ°arleg - VÃ¶rur"]
+    ws_m4 = wb["Mánaðarleg - Vörur"]
     # Unmerge all, then clear
     for merge in list(ws_m4.merged_cells.ranges):
         ws_m4.unmerge_cells(str(merge))
@@ -439,5 +439,5 @@ def run(report_path):
     print(f"\nâ Master file saved: {MASTER}")
 
 if __name__ == "__main__":
-    path = sys.argv[1] if len(sys.argv) > 1 else os.path.join(SCRIPT_DIR, 'KrÃ³nan sÃ¶luskÃ½rsla.xlsx')
+    path = sys.argv[1] if len(sys.argv) > 1 else os.path.join(SCRIPT_DIR, 'Krónan söluskýrsla.xlsx')
     run(path)
