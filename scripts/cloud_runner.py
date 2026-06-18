@@ -138,7 +138,14 @@ def main():
         rc = run('kronan_master.py', tmp.name)
         os.unlink(tmp.name)
         if rc != 0:
-            print(f'  ✗ kronan_master.py failed (exit {rc})')
+            print(f'  ✗ kronan_master.py failed (exit {rc}) — quarantining to Processed/')
+            ts = datetime.now().strftime('%Y%m%d_%H%M%S')
+            dest = f'{DROPBOX_PROCESSED_FOLDER}/{ts}_ERROR_{name}'
+            try:
+                dbx.files_move_v2(dropbox_path, dest)
+                print(f'  ✓ Quarantined → Processed/{ts}_ERROR_{name}')
+            except ApiError as e:
+                print(f'  ⚠ Could not quarantine: {e}')
             continue
 
         # 3. Update dashboard HTML
