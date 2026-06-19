@@ -1,0 +1,74 @@
+name: Fix June 6 Data
+
+on:
+  workflow_dispatch:
+
+jobs:
+  fix:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    env:
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Remove wrong June 6 data and re-insert corrected data
+        run: KRONAN_BASE=data python scripts/fix_june6_runner.py fix/kronan_june6_correct.xlsx
+
+      - name: Restore clean dashboard from Dropbox
+        env:
+          DROPBOX_REFRESH_TOKEN: ${{ secrets.DROPBOX_REFRESH_TOKEN }}
+          DROPBOX_APP_KEY:       ${{ secrets.DROPBOX_APP_KEY }}
+          DROPBOX_APP_SECRET:    ${{ secrets.DROPBOX_APP_SECRET }}
+        run: KRONAN_BASE=data python scripts/restore_dashboard.py
+
+      - name: Patch dashboard JS
+        run: KRONAN_BASE=data python scripts/fix_dashboard_js.py
+
+      - name: Rebuild dashboard from master
+        run: |
+          MSIZE=$(ls -l data/Kr*_Master_Skr*.xlsx 2>/dev/null | awk '{print $5}' || echo 0)
+          echo "Master size: $MSIZE bytes"
+          if [ "$MSIZE" -gt 100000 ]; then
+            KRONAN_BASE=data python scripts/update_dashboard_data.py && echo "Rebuilt OK" || echo "Rebuild failed"
+          else
+            echo "Master too small ($MSIZE), skipping rebuild"
+          fi
+
+      - name: Deploy to Netlify
+        env:
+          NETLIFY_TOKEN: ${{ secrets.NETLIFY_TOKEN }}
+          NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
+        run: |
+          cp data/*Dashboard*.html /tmp/index.html
+          printf "/*\n  Content-Type: text/html; charset=utf-8\n  X-Content-Type-Options: nosniff\n" > /tmp/_headers
+          cd /tmp && zip -j /tmp/deploy.zip index.html _headers && cd -
+          RESULT=$(curl -sL -H "Authorization: Bearer $NETLIFY_TOKEN" \
+            -H "Content-Type: application/zip" \
+            --data-binary @/tmp/deploy.zip \
+            "https://api.netlify.com/api/v1/sites/$NETLIFY_SITE_ID/deploys")
+          echo "Deploy result: $(echo $RESULT | python3 -c 'import sys,json; d=json.load(sys.stdin); print(d.get("state","?"))')"
+          rm -f /tmp/deploy.zip /tmp/index.html /tmp/_headers
+
+      - name: Commit fixed master
+        run: |
+          git config user.name "Krónan Bot"
+          git config user.email "kronan-bot@tokyo.is"
+          git add data/
+          git diff --staged --quiet || git commit -m "fix: replace wrong June 6 data with corrected file"
+          git pull --rebase origin main || true
+          git push
