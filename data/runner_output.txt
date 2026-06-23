@@ -1,9 +1,9 @@
 
-📂 Reading report: /tmp/tmp97t1e3mw.xlsx
+📂 Reading report: /tmp/tmpcgofo59v.xlsx
  Sheet headers (row 1): ['Dags', 'Keðja', 'EAN Númer', 'Heiti verslunar', 'Vöru Nr ', 'Vara', 'Vörunúmer birgja', 'Sala', 'Magn']
- First data row  (row 2): [datetime.datetime(2026, 6, 21, 0, 0), 'Krónan', '5699000030039', 'Krónan Akrabraut', '100208436', 'Tokyo Sushi rækjukatsu maki 8b', 'R0180', 3441.4407, 2.0]
- Date: 2026-06-21 00:00:00, Stores: 18, Products: 98
- Date: 2026-06-21 00:00:00, Stores: 18, Products: 98
+ First data row  (row 2): [datetime.datetime(2026, 6, 22, 0, 0), 'Krónan', '5699000030039', 'Krónan Akrabraut', '100211701', 'Tokyo Sushi laxa hosomaki 8bit', 'R0182', 1027.03, 1.0]
+ Date: 2026-06-22 00:00:00, Stores: 18, Products: 91
+ Date: 2026-06-22 00:00:00, Stores: 18, Products: 91
 
 📒 Loading master file...
 
@@ -11,9 +11,9 @@
    No corrupted date rows found in master
 
 â Appending daily data...
- â Appended 18 store rows for 2026-06-21
- â Appended 98 product rows for 2026-06-21
- â Appended 584 store×product rows for 2026-06-21
+ â Appended 18 store rows for 2026-06-22
+ â Appended 91 product rows for 2026-06-22
+ â Appended 694 store×product rows for 2026-06-22
 
 📅 Rebuilding monthly summaries...
  â Monthly stores summary rebuilt (2 months)
@@ -22,22 +22,22 @@
 â Master file saved: /home/runner/work/kronan-automation/kronan-automation/data/Krónan_Master_Skrá.xlsx
   ✓ No historic dates to merge (dashboard ≤ Excel range)
   (marker path)
-✅ Dashboard data updated — 52 days, 23 stores, 142 products
-✅ Store×Product data patched — 32803 product-store-day combos
+✅ Dashboard data updated — 53 days, 23 stores, 142 products
+✅ Store×Product data patched — 33497 product-store-day combos
 ✅ Heatmap fix applied (all stores visible)
 ✅ Trend tab fix applied (all stores visible)
 [netlify] Deployed → https://kronan-dashboard.netlify.app
   Folder has 2 entries
   Entry: [FolderMetadata] 'Processed'
-  Entry: [FileMetadata] '2026-06-21_Krónan söluskýrsla.xlsx'
-  -> Yielding file: 2026-06-21_Krónan söluskýrsla.xlsx
+  Entry: [FileMetadata] '2026-06-22_Krónan söluskýrsla.xlsx'
+  -> Yielding file: 2026-06-22_Krónan söluskýrsla.xlsx
 
-→ Found: 2026-06-21_Krónan söluskýrsla.xlsx
-  Downloaded (44,420 bytes)
-  $ /opt/hostedtoolcache/Python/3.11.15/x64/bin/python /home/runner/work/kronan-automation/kronan-automation/scripts/kronan_master.py /tmp/tmp97t1e3mw.xlsx
+→ Found: 2026-06-22_Krónan söluskýrsla.xlsx
+  Downloaded (50,542 bytes)
+  $ /opt/hostedtoolcache/Python/3.11.15/x64/bin/python /home/runner/work/kronan-automation/kronan-automation/scripts/kronan_master.py /tmp/tmpcgofo59v.xlsx
   $ /opt/hostedtoolcache/Python/3.11.15/x64/bin/python /home/runner/work/kronan-automation/kronan-automation/scripts/update_dashboard_data.py
   $ /opt/hostedtoolcache/Python/3.11.15/x64/bin/python /home/runner/work/kronan-automation/kronan-automation/scripts/netlify_deploy.py
-  ✓ Moved → Processed/20260622_085658_2026-06-21_Krónan söluskýrsla.xlsx
-  ✅ Done: 2026-06-21_Krónan söluskýrsla.xlsx
+  ✓ Moved → Processed/20260623_104039_2026-06-22_Krónan söluskýrsla.xlsx
+  ✅ Done: 2026-06-22_Krónan söluskýrsla.xlsx
 [output] processed=true
 ---EXIT:0---
