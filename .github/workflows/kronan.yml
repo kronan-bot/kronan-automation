@@ -1,4 +1,4 @@
-name: KrÃÂ³nan Daily Report
+name: KrÃ³nan Daily Report
 
 on:
   schedule:
@@ -80,7 +80,7 @@ jobs:
       - name: Commit results
         if: always()
         run: |
-          git config user.name "KrÃÂ³nan Bot"
+          git config user.name "KrÃ³nan Bot"
           git config user.email "kronan-bot@tokyo.is"
           git add data/
           git diff --staged --quiet || git commit -m "run: $(date -u '+%Y-%m-%d %H:%M UTC') processed=${{ steps.runner.outputs.processed }}"
