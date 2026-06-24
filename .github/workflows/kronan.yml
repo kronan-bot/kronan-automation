@@ -1,10 +1,10 @@
-name: KrÃ³nan Daily Report
+name: Krónan Daily Report
 
 on:
   schedule:
     - cron: '*/5 7-13 * * *'
   workflow_dispatch:
-    repository_dispatch:
+  repository_dispatch:
 
 jobs:
   process:
