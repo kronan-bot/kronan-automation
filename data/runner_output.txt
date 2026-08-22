@@ -1,28 +1,5 @@
-Traceback (most recent call last):
-  File "/home/runner/work/kronan-automation/kronan-automation/scripts/cloud_runner.py", line 192, in <module>
-    main()
-  File "/home/runner/work/kronan-automation/kronan-automation/scripts/cloud_runner.py", line 114, in main
-    reports = list(list_new_reports(dbx))
-              ^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/kronan-automation/kronan-automation/scripts/cloud_runner.py", line 66, in list_new_reports
-    result = dbx.files_list_folder(DROPBOX_REPORTS_FOLDER)
-             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/opt/hostedtoolcache/Python/3.11.16/x64/lib/python3.11/site-packages/dropbox/base.py", line 2316, in files_list_folder
-    r = self.request(
-        ^^^^^^^^^^^^^
-  File "/opt/hostedtoolcache/Python/3.11.16/x64/lib/python3.11/site-packages/dropbox/dropbox_client.py", line 357, in request
-    deserialized_result = stone_serializers.json_compat_obj_decode(
-                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/opt/hostedtoolcache/Python/3.11.16/x64/lib/python3.11/site-packages/stone/backends/python_rsrc/stone_serializers.py", line 973, in json_compat_obj_decode
-    return decoder.json_compat_obj_decode_helper(
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/opt/hostedtoolcache/Python/3.11.16/x64/lib/python3.11/site-packages/stone/backends/python_rsrc/stone_serializers.py", line 559, in json_compat_obj_decode_helper
-    return self.decode_union(data_type, obj)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/opt/hostedtoolcache/Python/3.11.16/x64/lib/python3.11/site-packages/stone/backends/python_rsrc/stone_serializers.py", line 654, in decode_union
-    tag, val = self.decode_union_dict(data_type, obj)
-               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/opt/hostedtoolcache/Python/3.11.16/x64/lib/python3.11/site-packages/stone/backends/python_rsrc/stone_serializers.py", line 674, in decode_union_dict
-    raise bv.ValidationError(
-stone.backends.python_rsrc.stone_validators.ValidationError: unexpected use of the catch-all tag 'other'
----EXIT:1---
+  Folder has 1 entries
+  Entry: [FolderMetadata] 'Processed'
+No new reports found in Dropbox. Nothing to do.
+[output] processed=false
+---EXIT:0---
