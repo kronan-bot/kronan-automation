@@ -1,5 +1,41 @@
-  Folder has 1 entries
+
+📂 Reading report: /tmp/tmpk3nxgbjr.xlsx
+ Sheet headers (row 1): ['Dags', 'Keðja', 'EAN Númer', 'Heiti verslunar', 'Vöru Nr ', 'Vara', 'Vörunúmer birgja', 'Sala', 'Magn']
+ First data row  (row 2): [datetime.datetime(2026, 8, 28, 0, 0), 'Krónan', '5699000030039', 'Krónan Akrabraut', '100208436', 'Tokyo Sushi rækjukatsu maki 8b', 'R0180', 3354.95, 2.0]
+ Date: 2026-08-28 00:00:00, Stores: 20, Products: 105
+ Date: 2026-08-28 00:00:00, Stores: 20, Products: 105
+
+📒 Loading master file...
+
+🧹 Checking master for corrupted rows...
+   No corrupted date rows found in master
+
+â Appending daily data...
+ â Appended 20 store rows for 2026-08-28
+ â Appended 105 product rows for 2026-08-28
+ â Appended 758 store×product rows for 2026-08-28
+
+📅 Rebuilding monthly summaries...
+ â Monthly stores summary rebuilt (4 months)
+ â Monthly products summary rebuilt (4 months)
+
+â Master file saved: /home/runner/work/kronan-automation/kronan-automation/data/Krónan_Master_Skrá.xlsx
+  ✓ No historic dates to merge (dashboard ≤ Excel range)
+  (marker path)
+✅ Dashboard data updated — 120 days, 23 stores, 146 products
+✅ Store×Product data patched — 79214 product-store-day combos
+[netlify] Deployed → https://kronan-dashboard.netlify.app
+  Folder has 2 entries
   Entry: [FolderMetadata] 'Processed'
-No new reports found in Dropbox. Nothing to do.
-[output] processed=false
+  Entry: [FileMetadata] '2026-08-28_Krónan söluskýrsla.xlsx'
+  -> Yielding file: 2026-08-28_Krónan söluskýrsla.xlsx
+
+→ Found: 2026-08-28_Krónan söluskýrsla.xlsx
+  Downloaded (54,793 bytes)
+  $ /opt/hostedtoolcache/Python/3.11.16/x64/bin/python /home/runner/work/kronan-automation/kronan-automation/scripts/kronan_master.py /tmp/tmpk3nxgbjr.xlsx
+  $ /opt/hostedtoolcache/Python/3.11.16/x64/bin/python /home/runner/work/kronan-automation/kronan-automation/scripts/update_dashboard_data.py
+  $ /opt/hostedtoolcache/Python/3.11.16/x64/bin/python /home/runner/work/kronan-automation/kronan-automation/scripts/netlify_deploy.py
+  ✓ Moved → Processed/20260829_074654_2026-08-28_Krónan söluskýrsla.xlsx
+  ✅ Done: 2026-08-28_Krónan söluskýrsla.xlsx
+[output] processed=true
 ---EXIT:0---
