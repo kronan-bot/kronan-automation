@@ -1,0 +1,50 @@
+name: Fix None Dates in Master
+on:
+  workflow_dispatch:
+
+jobs:
+  fix-none-dates:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install openpyxl
+        run: pip install openpyxl
+      - name: Remove None-dated rows from master
+        run: |
+          python3 - << 'PYEOF'
+          import openpyxl
+
+          MASTER = 'data/Krónan_Master_Skrá.xlsx'
+          wb = openpyxl.load_workbook(MASTER)
+
+          total_removed = 0
+          for sname in wb.sheetnames:
+              ws = wb[sname]
+              rows_to_delete = []
+              for i, row in enumerate(ws.iter_rows(min_row=2, values_only=True), start=2):
+                  if row[0] is None:
+                      rows_to_delete.append(i)
+              if rows_to_delete:
+                  print(f"Sheet '{sname}': removing {len(rows_to_delete)} None-dated rows")
+                  for row_idx in sorted(rows_to_delete, reverse=True):
+                      ws.delete_rows(row_idx)
+                  total_removed += len(rows_to_delete)
+              else:
+                  print(f"Sheet '{sname}': clean")
+          wb.save(MASTER)
+          print(f"Done. Total rows removed: {total_removed}")
+          PYEOF
+      - name: Commit fix
+        run: |
+          git config user.email "action@github.com"
+          git config user.name "Kronan Bot"
+          git add data/Krónan_Master_Skrá.xlsx
+          if git diff --cached --quiet; then
+            echo "No None-dated rows - master already clean"
+          else
+            git commit -m "fix: remove None-dated rows from master Excel"
+            git push
+          fi
