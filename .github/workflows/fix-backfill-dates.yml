@@ -1,0 +1,80 @@
+name: Fix Backfill Dates
+on:
+  workflow_dispatch:
+
+jobs:
+  fix-backfill:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install dependencies
+        run: pip install openpyxl requests
+      - name: Download, fix, and re-upload backfill files
+        env:
+          DROPBOX_REFRESH_TOKEN: ${{ secrets.DROPBOX_REFRESH_TOKEN }}
+          DROPBOX_APP_KEY: ${{ secrets.DROPBOX_APP_KEY }}
+          DROPBOX_APP_SECRET: ${{ secrets.DROPBOX_APP_SECRET }}
+        run: |
+          python3 -c "
+          import requests, openpyxl, datetime, io, json, os
+
+          r = requests.post('https://api.dropboxapi.com/oauth2/token', data={
+              'grant_type': 'refresh_token',
+              'refresh_token': os.environ['DROPBOX_REFRESH_TOKEN'],
+              'client_id': os.environ['DROPBOX_APP_KEY'],
+              'client_secret': os.environ['DROPBOX_APP_SECRET'],
+          })
+          r.raise_for_status()
+          TOKEN = r.json()['access_token']
+          print('Got access token')
+
+          FILES = [
+              {'src': 'id:iFckmNMkxqQAAAAAAAAklQ', 'fix_date': datetime.datetime(2026, 11, 11), 'dst': '/Krónan Reports/backfill_nov11_fixed.xlsx'},
+              {'src': 'id:iFckmNMkxqQAAAAAAAAklg', 'fix_date': datetime.datetime(2026, 11, 12), 'dst': '/Krónan Reports/backfill_nov12_fixed.xlsx'},
+          ]
+
+          for f in FILES:
+              print('Downloading: ' + f['src'])
+              dl = requests.post(
+                  'https://content.dropboxapi.com/2/files/download',
+                  headers={
+                      'Authorization': 'Bearer ' + TOKEN,
+                      'Dropbox-API-Arg': json.dumps({'path': f['src']})
+                  }
+              )
+              dl.raise_for_status()
+              print('  Downloaded ' + str(len(dl.content)) + ' bytes')
+
+              wb = openpyxl.load_workbook(io.BytesIO(dl.content))
+              fixed = 0
+              for sname in wb.sheetnames:
+                  ws = wb[sname]
+                  for row in ws.iter_rows(min_row=2):
+                      cell = row[0]
+                      if isinstance(cell.value, int) and 46000 < cell.value < 47000:
+                          cell.value = f['fix_date']
+                          cell.number_format = 'DD.MM.YYYY'
+                          fixed += 1
+              print('  Fixed ' + str(fixed) + ' date cells')
+
+              buf = io.BytesIO()
+              wb.save(buf)
+              buf.seek(0)
+              data = buf.read()
+
+              ul = requests.post(
+                  'https://content.dropboxapi.com/2/files/upload',
+                  headers={
+                      'Authorization': 'Bearer ' + TOKEN,
+                      'Dropbox-API-Arg': json.dumps({'path': f['dst'], 'mode': 'overwrite', 'autorename': False}),
+                      'Content-Type': 'application/octet-stream'
+                  },
+                  data=data
+              )
+              ul.raise_for_status()
+              res = ul.json()
+              print('  Uploaded: ' + str(res.get('path_display', '?')))
+          print('All done!')
+          "
